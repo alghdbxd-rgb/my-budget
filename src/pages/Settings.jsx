@@ -1,5 +1,6 @@
 import { Download, Moon, Sun, Trash2, Upload, Wallet } from "lucide-react"
 import { useRef, useState } from "react"
+import { SecuritySettings } from "../components/lock/SecuritySettings"
 import { Button } from "../components/ui/Button"
 import { Card, CardHeader } from "../components/ui/Card"
 import { useBudget } from "../context/BudgetContext"
@@ -97,6 +98,8 @@ export default function Settings() {
           </button>
         </div>
       </Card>
+
+      <SecuritySettings />
 
       <Card>
         <CardHeader title="العملة" subtitle="تُستخدم في عرض جميع المبالغ داخل النظام" />

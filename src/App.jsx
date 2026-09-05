@@ -1,24 +1,35 @@
 import { Route, Routes } from "react-router-dom"
 import { AppLayout } from "./components/layout/AppLayout"
+import { LockScreen } from "./components/lock/LockScreen"
 import { BudgetProvider } from "./context/BudgetContext"
+import { LockProvider, useLock } from "./context/LockContext"
 import Budgets from "./pages/Budgets"
 import Dashboard from "./pages/Dashboard"
 import Reports from "./pages/Reports"
 import Settings from "./pages/Settings"
 import Transactions from "./pages/Transactions"
 
+function Gate({ children }) {
+  const { unlocked } = useLock()
+  return unlocked ? children : <LockScreen />
+}
+
 export default function App() {
   return (
-    <BudgetProvider>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="budgets" element={<Budgets />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </BudgetProvider>
+    <LockProvider>
+      <Gate>
+        <BudgetProvider>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="transactions" element={<Transactions />} />
+              <Route path="budgets" element={<Budgets />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
+        </BudgetProvider>
+      </Gate>
+    </LockProvider>
   )
 }
