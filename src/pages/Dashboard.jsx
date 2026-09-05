@@ -1,4 +1,11 @@
-import { AlertTriangle, ArrowDownLeft, ArrowUpRight, Receipt, Wallet } from "lucide-react"
+import {
+  AlertTriangle,
+  ArrowDownLeft,
+  ArrowUpRight,
+  HandCoins,
+  Receipt,
+  Wallet,
+} from "lucide-react"
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import {
@@ -19,8 +26,10 @@ import { EmptyState } from "../components/ui/EmptyState"
 import { useBudget } from "../context/BudgetContext"
 import { currentMonthKey, formatMoney, monthLabel } from "../lib/format"
 import {
+  accountBalances,
   budgetUsage,
   categoryBreakdown,
+  debtsSummary,
   monthlyTrend,
   sumByType,
   totalBalance,
@@ -34,16 +43,18 @@ function StatCard({ icon, label, value, tone }) {
     slate: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
   }
   return (
-    <Card className="flex items-center gap-4">
-      <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${tones[tone]}`}>
-        {icon}
+    <Card className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <div
+          className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${tones[tone]}`}
+        >
+          {icon}
+        </div>
+        <p className="truncate text-xs font-semibold text-slate-400">{label}</p>
       </div>
-      <div className="min-w-0">
-        <p className="text-xs font-semibold text-slate-400">{label}</p>
-        <p className="truncate text-lg font-extrabold text-slate-800 dark:text-slate-100">
-          {value}
-        </p>
-      </div>
+      <p className="overflow-x-auto whitespace-nowrap text-base font-extrabold text-slate-800 dark:text-slate-100">
+        {value}
+      </p>
     </Card>
   )
 }
@@ -74,6 +85,12 @@ export default function Dashboard() {
   )
   const overBudget = usage.filter((u) => u.percent >= 90)
   const recent = state.transactions.slice(0, 6)
+  const accounts = useMemo(
+    () => accountBalances(state.transactions, state.accounts),
+    [state.transactions, state.accounts],
+  )
+  const debts = useMemo(() => debtsSummary(state.debts), [state.debts])
+  const hasDebts = debts.owedToMe > 0 || debts.owedByMe > 0
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -127,6 +144,59 @@ export default function Dashboard() {
           </div>
         </Card>
       )}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader
+            title="أرصدة الحسابات"
+            action={
+              <Link to="/settings" className="text-sm font-semibold text-teal-600 hover:underline">
+                إدارة
+              </Link>
+            }
+          />
+          <div className="flex flex-col gap-2">
+            {accounts.map((a) => (
+              <div key={a.id} className="flex items-center justify-between gap-2 text-sm">
+                <span className="flex items-center gap-2 min-w-0 text-slate-600 dark:text-slate-300">
+                  <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: a.color }} />
+                  <span className="truncate">{a.name}</span>
+                </span>
+                <span
+                  className={`shrink-0 font-bold ${a.balance >= 0 ? "text-slate-700 dark:text-slate-200" : "text-rose-500"}`}
+                >
+                  {formatMoney(a.balance, currency)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="الديون والسلف"
+            action={
+              <Link to="/debts" className="text-sm font-semibold text-teal-600 hover:underline">
+                عرض الكل
+              </Link>
+            }
+          />
+          {!hasDebts ? (
+            <EmptyState icon={<HandCoins size={22} />} title="لا توجد ديون مسجلة" />
+          ) : (
+            <div className="flex flex-col gap-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">مدينون لي</span>
+                <span className="font-bold text-teal-600">{formatMoney(debts.owedToMe, currency)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">أنا مدين</span>
+                <span className="font-bold text-rose-500">{formatMoney(debts.owedByMe, currency)}</span>
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-5">
         <Card className="lg:col-span-2">

@@ -65,6 +65,7 @@ export default function Transactions() {
               <option value="all">كل الأنواع</option>
               <option value="income">دخل</option>
               <option value="expense">مصروف</option>
+              <option value="transfer">تحويل</option>
             </select>
             <select
               value={categoryId}

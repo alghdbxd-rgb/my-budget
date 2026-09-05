@@ -13,7 +13,49 @@ export function sumByType(transactions, type) {
 }
 
 export function totalBalance(transactions) {
-  return transactions.reduce((acc, t) => acc + (t.type === "income" ? t.amount : -t.amount), 0)
+  return transactions.reduce((acc, t) => {
+    if (t.type === "income") return acc + t.amount
+    if (t.type === "expense") return acc - t.amount
+    return acc // التحويلات لا تغيّر مجموع الرصيد الكلي، فقط توزيعه بين الحسابات
+  }, 0)
+}
+
+export function accountById(accounts, id) {
+  return accounts.find((a) => a.id === id)
+}
+
+export function accountBalances(transactions, accounts) {
+  const fallbackId = accounts[0]?.id
+  const totals = new Map(accounts.map((a) => [a.id, 0]))
+  for (const t of transactions) {
+    const accId = t.accountId || fallbackId
+    if (totals.has(accId)) {
+      if (t.type === "income") totals.set(accId, totals.get(accId) + t.amount)
+      else if (t.type === "expense") totals.set(accId, totals.get(accId) - t.amount)
+      else if (t.type === "transfer") totals.set(accId, totals.get(accId) - t.amount)
+    }
+    if (t.type === "transfer" && totals.has(t.toAccountId)) {
+      totals.set(t.toAccountId, totals.get(t.toAccountId) + t.amount)
+    }
+  }
+  return accounts.map((a) => ({ ...a, balance: totals.get(a.id) ?? 0 }))
+}
+
+export function debtRemaining(debt) {
+  const paid = (debt.payments ?? []).reduce((a, p) => a + p.amount, 0)
+  return debt.amount - paid
+}
+
+export function debtsSummary(debts) {
+  let owedToMe = 0
+  let owedByMe = 0
+  for (const d of debts) {
+    const remaining = debtRemaining(d)
+    if (remaining <= 0) continue
+    if (d.direction === "owed_to_me") owedToMe += remaining
+    else owedByMe += remaining
+  }
+  return { owedToMe, owedByMe }
 }
 
 export function categoryBreakdown(transactions, categories, type = "expense") {

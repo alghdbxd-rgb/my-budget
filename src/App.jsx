@@ -5,6 +5,7 @@ import { BudgetProvider } from "./context/BudgetContext"
 import { LockProvider, useLock } from "./context/LockContext"
 import Budgets from "./pages/Budgets"
 import Dashboard from "./pages/Dashboard"
+import Debts from "./pages/Debts"
 import Reports from "./pages/Reports"
 import Settings from "./pages/Settings"
 import Transactions from "./pages/Transactions"
@@ -23,6 +24,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="transactions" element={<Transactions />} />
+              <Route path="debts" element={<Debts />} />
               <Route path="budgets" element={<Budgets />} />
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />

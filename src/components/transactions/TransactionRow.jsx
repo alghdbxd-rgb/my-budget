@@ -1,28 +1,39 @@
-import { ArrowDownLeft, ArrowUpRight, Pencil, Trash2 } from "lucide-react"
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Pencil, Trash2 } from "lucide-react"
 import { useBudget } from "../../context/BudgetContext"
 import { formatMoney, formatShortDate } from "../../lib/format"
-import { categoryById } from "../../lib/selectors"
+import { accountById, categoryById } from "../../lib/selectors"
 
 export function TransactionRow({ transaction, onEdit, dense = false }) {
   const { state, deleteTransaction } = useBudget()
-  const category = categoryById(state.categories, transaction.categoryId)
   const isIncome = transaction.type === "income"
+  const isTransfer = transaction.type === "transfer"
+
+  const category = !isTransfer ? categoryById(state.categories, transaction.categoryId) : null
+  const fromAccount = isTransfer ? accountById(state.accounts, transaction.accountId) : null
+  const toAccount = isTransfer ? accountById(state.accounts, transaction.toAccountId) : null
+
+  const iconColor = isTransfer ? "#64748b" : (category?.color ?? "#94a3b8")
 
   return (
     <div className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60">
       <div
         className="flex size-9 shrink-0 items-center justify-center rounded-full"
-        style={{
-          backgroundColor: `${category?.color ?? "#94a3b8"}1a`,
-          color: category?.color ?? "#94a3b8",
-        }}
+        style={{ backgroundColor: `${iconColor}1a`, color: iconColor }}
       >
-        {isIncome ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
+        {isTransfer ? (
+          <ArrowLeftRight size={16} />
+        ) : isIncome ? (
+          <ArrowDownLeft size={16} />
+        ) : (
+          <ArrowUpRight size={16} />
+        )}
       </div>
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
-          {category?.name ?? "غير مصنف"}
+          {isTransfer
+            ? `تحويل: ${fromAccount?.name ?? "؟"} ← ${toAccount?.name ?? "؟"}`
+            : (category?.name ?? "غير مصنف")}
         </p>
         <p className="truncate text-xs text-slate-400">
           {transaction.note ? `${transaction.note} · ` : ""}
@@ -32,10 +43,10 @@ export function TransactionRow({ transaction, onEdit, dense = false }) {
 
       <p
         className={`shrink-0 text-sm font-bold ${
-          isIncome ? "text-teal-600" : "text-rose-500"
+          isTransfer ? "text-slate-500 dark:text-slate-400" : isIncome ? "text-teal-600" : "text-rose-500"
         }`}
       >
-        {isIncome ? "+" : "-"}
+        {!isTransfer && (isIncome ? "+" : "-")}
         {formatMoney(transaction.amount, state.settings.currency)}
       </p>
 

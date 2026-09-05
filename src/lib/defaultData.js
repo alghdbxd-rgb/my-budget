@@ -17,6 +17,8 @@ export const DEFAULT_CATEGORIES = [
   { id: "cat-other-expense", name: "مصاريف أخرى", type: "expense", color: "#71717a" },
 ]
 
+export const DEFAULT_ACCOUNTS = [{ id: "acc-cash", name: "نقد", color: "#0f766e" }]
+
 export const DEFAULT_SETTINGS = {
   currency: "IQD",
   theme: "light",
@@ -35,8 +37,11 @@ export const CURRENCIES = [
 export function createInitialState() {
   return {
     categories: DEFAULT_CATEGORIES,
+    accounts: DEFAULT_ACCOUNTS,
     transactions: [],
     budgets: {},
+    debts: [],
+    recurring: [],
     settings: DEFAULT_SETTINGS,
   }
 }
