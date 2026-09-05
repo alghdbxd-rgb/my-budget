@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useBudget } from "../../context/BudgetContext"
+import { toWesternDigits } from "../../lib/numeral"
 import { Button } from "../ui/Button"
 import { Modal } from "../ui/Modal"
 
@@ -85,12 +86,11 @@ export function RecurringForm({ open, onClose, rule }) {
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">المبلغ</span>
           <input
-            type="number"
+            type="text"
             inputMode="decimal"
-            min="0"
             autoFocus
             value={form.amount}
-            onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
+            onChange={(e) => setForm((f) => ({ ...f, amount: toWesternDigits(e.target.value) }))}
             placeholder="0.00"
             className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
@@ -132,11 +132,10 @@ export function RecurringForm({ open, onClose, rule }) {
             يوم التكرار كل شهر (1-28)
           </span>
           <input
-            type="number"
-            min="1"
-            max="28"
+            type="text"
+            inputMode="numeric"
             value={form.dayOfMonth}
-            onChange={(e) => setForm((f) => ({ ...f, dayOfMonth: e.target.value }))}
+            onChange={(e) => setForm((f) => ({ ...f, dayOfMonth: toWesternDigits(e.target.value) }))}
             className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>

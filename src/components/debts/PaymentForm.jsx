@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useBudget } from "../../context/BudgetContext"
 import { todayIso } from "../../lib/format"
+import { toWesternDigits } from "../../lib/numeral"
 import { debtRemaining } from "../../lib/selectors"
 import { Button } from "../ui/Button"
 import { Modal } from "../ui/Modal"
@@ -46,12 +47,11 @@ export function PaymentForm({ open, onClose, debt }) {
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">مبلغ الدفعة</span>
           <input
-            type="number"
+            type="text"
             inputMode="decimal"
-            min="0"
             autoFocus
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => setAmount(toWesternDigits(e.target.value))}
             className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>

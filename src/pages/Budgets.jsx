@@ -6,6 +6,7 @@ import { Card, CardHeader } from "../components/ui/Card"
 import { EmptyState } from "../components/ui/EmptyState"
 import { useBudget } from "../context/BudgetContext"
 import { currentMonthKey, formatMoney } from "../lib/format"
+import { toWesternDigits } from "../lib/numeral"
 import { budgetUsage } from "../lib/selectors"
 
 function BudgetRow({ category, limit, currency, onChangeLimit, onRemove }) {
@@ -27,10 +28,10 @@ function BudgetRow({ category, limit, currency, onChangeLimit, onRemove }) {
         </div>
         <div className="flex items-center gap-2">
           <input
-            type="number"
-            min="0"
+            type="text"
+            inputMode="decimal"
             value={limit || ""}
-            onChange={(e) => onChangeLimit(Number(e.target.value) || 0)}
+            onChange={(e) => onChangeLimit(Number(toWesternDigits(e.target.value)) || 0)}
             placeholder="بلا حد"
             className="w-28 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-left text-sm outline-none focus:border-teal-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
