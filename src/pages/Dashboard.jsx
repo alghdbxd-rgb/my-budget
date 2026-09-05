@@ -79,7 +79,7 @@ export default function Dashboard() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
-          مرحباً بك في نظام سويليا 👋
+          مرحباً بك في مصروفي 👋
         </h1>
         <p className="mt-1 text-sm text-slate-400">نظرة عامة على وضعك المالي - {monthLabel(monthKey)}</p>
       </div>

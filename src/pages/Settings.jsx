@@ -69,7 +69,7 @@ export default function Settings() {
     <div className="mx-auto flex max-w-2xl flex-col gap-5">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">الإعدادات</h1>
-        <p className="mt-1 text-sm text-slate-400">تخصيص نظام سويليا وإدارة بياناتك</p>
+        <p className="mt-1 text-sm text-slate-400">تخصيص مصروفي وإدارة بياناتك</p>
       </div>
 
       {message && (
@@ -152,7 +152,7 @@ export default function Settings() {
 
       <div className="flex items-center gap-2 px-1 py-4 text-sm text-slate-400">
         <Wallet size={14} />
-        نظام سويليا · Sueilia System — بياناتك محفوظة محلياً على جهازك فقط
+        مصروفي — بياناتك محفوظة محلياً على جهازك فقط
       </div>
     </div>
   )

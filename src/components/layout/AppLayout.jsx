@@ -62,9 +62,8 @@ export function AppLayout() {
           </div>
           <div>
             <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
-              نظام سويليا
+              مصروفي
             </p>
-            <p className="text-[11px] text-slate-400">Sueilia System</p>
           </div>
         </div>
         <nav className="flex flex-col gap-1">
@@ -85,7 +84,7 @@ export function AppLayout() {
               <Wallet size={16} />
             </div>
             <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
-              نظام سويليا
+              مصروفي
             </p>
           </div>
           <div className="hidden md:block" />
