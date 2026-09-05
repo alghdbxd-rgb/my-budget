@@ -48,6 +48,17 @@ export function todayIso() {
   return d.toISOString().slice(0, 10)
 }
 
+export function formatDateTime(isoDateTime) {
+  const d = new Date(isoDateTime)
+  return new Intl.DateTimeFormat("ar-u-nu-latn", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(d)
+}
+
 export function currentMonthKey() {
   return monthKey(new Date().toISOString())
 }

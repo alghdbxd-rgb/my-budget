@@ -7,6 +7,7 @@ import {
   Plus,
   Receipt,
   Settings as SettingsIcon,
+  StickyNote,
   Sun,
   Wallet,
 } from "lucide-react"
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true },
   { to: "/transactions", label: "العمليات", icon: Receipt },
   { to: "/debts", label: "الديون", icon: HandCoins },
+  { to: "/notes", label: "الملاحظات", icon: StickyNote },
   { to: "/budgets", label: "الميزانيات", icon: PiggyBank },
   { to: "/reports", label: "التقارير", icon: BarChart3 },
   { to: "/settings", label: "الإعدادات", icon: SettingsIcon },
@@ -101,14 +103,14 @@ export function AppLayout() {
         </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-slate-200 bg-white/95 px-0.5 py-2 backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-900/95">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-1 overflow-x-auto border-t border-slate-200 bg-white/95 px-2 py-2 backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-900/95">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 rounded-lg px-1.5 py-1 text-[10px] font-semibold ${
+              `flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-[10px] font-semibold ${
                 isActive ? "text-teal-600" : "text-slate-400"
               }`
             }

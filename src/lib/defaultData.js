@@ -34,6 +34,17 @@ export const CURRENCIES = [
   { code: "EUR", label: "يورو", symbol: "€" },
 ]
 
+export const NOTE_COLORS = [
+  "#0f766e",
+  "#2563eb",
+  "#7c3aed",
+  "#db2777",
+  "#e11d48",
+  "#ea580c",
+  "#ca8a04",
+  "#65a30d",
+]
+
 export function createInitialState() {
   return {
     categories: DEFAULT_CATEGORIES,
@@ -42,6 +53,7 @@ export function createInitialState() {
     budgets: {},
     debts: [],
     recurring: [],
+    notes: [],
     settings: DEFAULT_SETTINGS,
   }
 }

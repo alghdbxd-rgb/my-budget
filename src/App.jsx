@@ -6,6 +6,7 @@ import { LockProvider, useLock } from "./context/LockContext"
 import Budgets from "./pages/Budgets"
 import Dashboard from "./pages/Dashboard"
 import Debts from "./pages/Debts"
+import Notes from "./pages/Notes"
 import Reports from "./pages/Reports"
 import Settings from "./pages/Settings"
 import Transactions from "./pages/Transactions"
@@ -27,6 +28,7 @@ export default function App() {
               <Route path="debts" element={<Debts />} />
               <Route path="budgets" element={<Budgets />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="notes" element={<Notes />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

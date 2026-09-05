@@ -46,6 +46,13 @@ export function debtRemaining(debt) {
   return debt.amount - paid
 }
 
+export function sortedNotes(notes) {
+  return [...notes].sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  })
+}
+
 export function debtsSummary(debts) {
   let owedToMe = 0
   let owedByMe = 0

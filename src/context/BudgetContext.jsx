@@ -16,6 +16,7 @@ function migrate(saved) {
     budgets: saved.budgets ?? {},
     debts: Array.isArray(saved.debts) ? saved.debts : [],
     recurring: Array.isArray(saved.recurring) ? saved.recurring : [],
+    notes: Array.isArray(saved.notes) ? saved.notes : [],
     settings: { ...DEFAULT_SETTINGS, ...(saved.settings ?? {}) },
   }
 }
@@ -200,6 +201,30 @@ export function BudgetProvider({ children }) {
             ),
           }
         })
+      },
+      addNote(note) {
+        const now = new Date().toISOString()
+        setState((s) => ({
+          ...s,
+          notes: [{ id: uuid(), pinned: false, createdAt: now, updatedAt: now, ...note }, ...s.notes],
+        }))
+      },
+      updateNote(id, patch) {
+        setState((s) => ({
+          ...s,
+          notes: s.notes.map((n) =>
+            n.id === id ? { ...n, ...patch, updatedAt: new Date().toISOString() } : n,
+          ),
+        }))
+      },
+      deleteNote(id) {
+        setState((s) => ({ ...s, notes: s.notes.filter((n) => n.id !== id) }))
+      },
+      toggleNotePin(id) {
+        setState((s) => ({
+          ...s,
+          notes: s.notes.map((n) => (n.id === id ? { ...n, pinned: !n.pinned } : n)),
+        }))
       },
       updateSettings(patch) {
         setState((s) => ({ ...s, settings: { ...s.settings, ...patch } }))
