@@ -2,8 +2,14 @@ import {
   AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
+  BarChart3,
   HandCoins,
+  PiggyBank,
   Receipt,
+  Repeat,
+  Settings as SettingsIcon,
+  ShieldCheck,
+  StickyNote,
   Wallet,
 } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -28,13 +34,25 @@ import { currentMonthKey, formatMoney, monthLabel } from "../lib/format"
 import {
   accountBalances,
   budgetUsage,
+  categoryById,
   categoryBreakdown,
   debtsSummary,
   monthlyTrend,
+  sortedNotes,
   sumByType,
   totalBalance,
   transactionsForMonth,
 } from "../lib/selectors"
+
+const QUICK_LINKS = [
+  { to: "/transactions", label: "العمليات", icon: Receipt },
+  { to: "/debts", label: "الديون", icon: HandCoins },
+  { to: "/budgets", label: "الميزانيات", icon: PiggyBank },
+  { to: "/reports", label: "التقارير", icon: BarChart3 },
+  { to: "/notes", label: "الملاحظات", icon: StickyNote },
+  { to: "/vault", label: "الخصوصية", icon: ShieldCheck },
+  { to: "/settings", label: "الإعدادات", icon: SettingsIcon },
+]
 
 function StatCard({ icon, label, value, tone }) {
   const tones = {
@@ -91,6 +109,9 @@ export default function Dashboard() {
   )
   const debts = useMemo(() => debtsSummary(state.debts), [state.debts])
   const hasDebts = debts.owedToMe > 0 || debts.owedByMe > 0
+  const topBudgets = usage.slice(0, 3)
+  const activeRecurring = state.recurring.filter((r) => r.active)
+  const recentNotes = useMemo(() => sortedNotes(state.notes).slice(0, 3), [state.notes])
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -99,6 +120,19 @@ export default function Dashboard() {
           مرحباً بك في مصروفي 👋
         </h1>
         <p className="mt-1 text-sm text-slate-400">نظرة عامة على وضعك المالي - {monthLabel(monthKey)}</p>
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {QUICK_LINKS.map(({ to, label, icon: Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            className="flex shrink-0 flex-col items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold text-slate-600 transition hover:border-teal-500 hover:text-teal-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+          >
+            <Icon size={18} />
+            {label}
+          </Link>
+        ))}
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -193,6 +227,108 @@ export default function Dashboard() {
                 <span className="text-slate-600 dark:text-slate-300">أنا مدين</span>
                 <span className="font-bold text-rose-500">{formatMoney(debts.owedByMe, currency)}</span>
               </div>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader
+            title="الميزانيات"
+            action={
+              <Link to="/budgets" className="text-sm font-semibold text-teal-600 hover:underline">
+                إدارة
+              </Link>
+            }
+          />
+          {topBudgets.length === 0 ? (
+            <EmptyState icon={<PiggyBank size={22} />} title="ما فيه حدود ميزانية بعد" />
+          ) : (
+            <div className="flex flex-col gap-3">
+              {topBudgets.map((u) => (
+                <div key={u.categoryId} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="truncate text-slate-600 dark:text-slate-300">{u.name}</span>
+                    <span
+                      className={`shrink-0 font-semibold ${u.percent >= 100 ? "text-rose-500" : "text-slate-500 dark:text-slate-400"}`}
+                    >
+                      {u.percent.toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                    <div
+                      className={`h-full rounded-full ${u.percent >= 100 ? "bg-rose-500" : "bg-teal-500"}`}
+                      style={{ width: `${Math.min(u.percent, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="العمليات المتكررة"
+            action={
+              <Link to="/settings" className="text-sm font-semibold text-teal-600 hover:underline">
+                إدارة
+              </Link>
+            }
+          />
+          {activeRecurring.length === 0 ? (
+            <EmptyState icon={<Repeat size={22} />} title="ما فيه عمليات متكررة مفعّلة" />
+          ) : (
+            <div className="flex flex-col gap-2">
+              {activeRecurring.slice(0, 3).map((r) => {
+                const cat = categoryById(state.categories, r.categoryId)
+                return (
+                  <div key={r.id} className="flex items-center justify-between gap-2 text-sm">
+                    <span className="min-w-0 truncate text-slate-600 dark:text-slate-300">
+                      {cat?.name ?? "غير مصنف"} · يوم {r.dayOfMonth}
+                    </span>
+                    <span
+                      className={`shrink-0 font-bold ${r.type === "income" ? "text-teal-600" : "text-rose-500"}`}
+                    >
+                      {formatMoney(r.amount, currency)}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="الملاحظات"
+            action={
+              <Link to="/notes" className="text-sm font-semibold text-teal-600 hover:underline">
+                عرض الكل
+              </Link>
+            }
+          />
+          {recentNotes.length === 0 ? (
+            <EmptyState icon={<StickyNote size={22} />} title="ما فيه ملاحظات بعد" />
+          ) : (
+            <div className="flex flex-col gap-2">
+              {recentNotes.map((n) => (
+                <div
+                  key={n.id}
+                  className="flex items-start gap-2 rounded-lg border-r-2 px-2 py-1 text-sm"
+                  style={{ borderColor: n.color }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold text-slate-700 dark:text-slate-200">
+                      {n.title || "بدون عنوان"}
+                    </p>
+                    {n.content && (
+                      <p className="truncate text-xs text-slate-400">{n.content}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </Card>
