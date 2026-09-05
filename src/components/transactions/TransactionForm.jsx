@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useBudget } from "../../context/BudgetContext"
+import { guessCategoryId } from "../../lib/autoCategorize"
 import { todayIso } from "../../lib/format"
 import { Button } from "../ui/Button"
 import { Modal } from "../ui/Modal"
@@ -17,15 +18,32 @@ export function TransactionForm({ open, onClose, transaction }) {
   const isEdit = Boolean(transaction)
   const [form, setForm] = useState(() => (transaction ? { ...transaction } : emptyForm("expense")))
   const [error, setError] = useState("")
+  const [autoPicked, setAutoPicked] = useState(false)
 
   useEffect(() => {
     if (open) {
       setForm(transaction ? { ...transaction } : emptyForm("expense"))
       setError("")
+      setAutoPicked(false)
     }
   }, [open, transaction])
 
   const categories = state.categories.filter((c) => c.type === form.type)
+
+  function applyNote(note) {
+    setForm((f) => {
+      const shouldAutoPick = !f.categoryId || autoPicked
+      const guess = shouldAutoPick ? guessCategoryId(note, f.type, state.categories) : null
+      if (guess) setAutoPicked(true)
+      return { ...f, note, categoryId: guess ?? f.categoryId }
+    })
+  }
+
+  function applyType(type) {
+    const guess = guessCategoryId(form.note, type, state.categories)
+    setForm((f) => ({ ...f, type, categoryId: guess ?? "" }))
+    setAutoPicked(Boolean(guess))
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -64,7 +82,7 @@ export function TransactionForm({ open, onClose, transaction }) {
             <button
               key={opt.value}
               type="button"
-              onClick={() => setForm((f) => ({ ...f, type: opt.value, categoryId: "" }))}
+              onClick={() => applyType(opt.value)}
               className={`rounded-lg py-2 text-sm font-bold transition ${
                 form.type === opt.value
                   ? opt.value === "expense"
@@ -94,10 +112,26 @@ export function TransactionForm({ open, onClose, transaction }) {
         </label>
 
         <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+            ملاحظة (اختياري)
+          </span>
+          <input
+            type="text"
+            value={form.note}
+            onChange={(e) => applyNote(e.target.value)}
+            placeholder="مثال: تكسي، غداء، فاتورة كهرباء..."
+            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5">
           <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">التصنيف</span>
           <select
             value={form.categoryId}
-            onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
+            onChange={(e) => {
+              setAutoPicked(false)
+              setForm((f) => ({ ...f, categoryId: e.target.value }))
+            }}
             className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="">اختر تصنيف</option>
@@ -107,6 +141,11 @@ export function TransactionForm({ open, onClose, transaction }) {
               </option>
             ))}
           </select>
+          {autoPicked && form.categoryId && (
+            <span className="text-xs font-semibold text-teal-600 dark:text-teal-400">
+              🔎 اقترحنا هذا التصنيف تلقائياً من الملاحظة
+            </span>
+          )}
         </label>
 
         <label className="flex flex-col gap-1.5">
@@ -115,19 +154,6 @@ export function TransactionForm({ open, onClose, transaction }) {
             type="date"
             value={form.date}
             onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-            ملاحظة (اختياري)
-          </span>
-          <input
-            type="text"
-            value={form.note}
-            onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
-            placeholder="مثال: غداء مع الأصدقاء"
             className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
