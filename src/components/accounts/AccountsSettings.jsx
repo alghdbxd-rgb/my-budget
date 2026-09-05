@@ -50,7 +50,9 @@ export function AccountsSettings() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-slate-700 dark:text-slate-200">{a.name}</p>
-                <p className="text-xs font-semibold text-slate-400">
+                <p
+                  className={`text-xs font-semibold ${a.balance < 0 ? "text-rose-500" : "text-slate-400"}`}
+                >
                   {formatMoney(a.balance, state.settings.currency)}
                 </p>
               </div>

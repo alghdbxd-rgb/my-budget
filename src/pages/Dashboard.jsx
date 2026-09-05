@@ -50,7 +50,7 @@ function StatCard({ icon, label, value, tone }) {
         >
           {icon}
         </div>
-        <p className="truncate text-xs font-semibold text-slate-400">{label}</p>
+        <p className="text-xs font-semibold leading-tight text-slate-400">{label}</p>
       </div>
       <p className="overflow-x-auto whitespace-nowrap text-base font-extrabold text-slate-800 dark:text-slate-100">
         {value}

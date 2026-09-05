@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react"
 import { useBudget } from "../../context/BudgetContext"
-import { todayIso } from "../../lib/format"
+import { formatMoney, todayIso } from "../../lib/format"
 import { toWesternDigits } from "../../lib/numeral"
 import { debtRemaining } from "../../lib/selectors"
 import { Button } from "../ui/Button"
 import { Modal } from "../ui/Modal"
 
 export function PaymentForm({ open, onClose, debt }) {
-  const { addDebtPayment } = useBudget()
+  const { state, addDebtPayment } = useBudget()
   const [amount, setAmount] = useState("")
   const [date, setDate] = useState(todayIso())
   const [note, setNote] = useState("")
@@ -42,7 +42,10 @@ export function PaymentForm({ open, onClose, debt }) {
     <Modal open={open} onClose={onClose} title={`تسديد دفعة — ${debt.person}`}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          المتبقي حالياً: <span className="font-bold text-slate-700 dark:text-slate-200">{remaining}</span>
+          المتبقي حالياً:{" "}
+          <span className="font-bold text-slate-700 dark:text-slate-200">
+            {formatMoney(remaining, state.settings.currency)}
+          </span>
         </p>
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">مبلغ الدفعة</span>

@@ -17,7 +17,13 @@ import { Button } from "../components/ui/Button"
 import { Card, CardHeader } from "../components/ui/Card"
 import { EmptyState } from "../components/ui/EmptyState"
 import { useBudget } from "../context/BudgetContext"
-import { currentMonthKey, formatMoney, monthKey as getMonthKey, monthLabel } from "../lib/format"
+import {
+  currentMonthKey,
+  formatCompactNumber,
+  formatMoney,
+  monthKey as getMonthKey,
+  monthLabel,
+} from "../lib/format"
 import { categoryBreakdown, monthlyTrend, sumByType, transactionsForMonth } from "../lib/selectors"
 
 function downloadFile(filename, content, type) {
@@ -105,7 +111,13 @@ export default function Reports() {
                 axisLine={false}
                 tickLine={false}
               />
-              <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} width={40} />
+              <YAxis
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
+                tickFormatter={formatCompactNumber}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
               <Tooltip
                 labelFormatter={(k) => monthLabel(k)}
                 formatter={(value, name) => [formatMoney(value, currency), name === "income" ? "دخل" : "مصروف"]}

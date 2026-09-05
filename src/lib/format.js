@@ -48,6 +48,10 @@ export function todayIso() {
   return d.toISOString().slice(0, 10)
 }
 
+export function formatCompactNumber(value) {
+  return new Intl.NumberFormat("ar-u-nu-latn", { notation: "compact" }).format(value)
+}
+
 export function formatDateTime(isoDateTime) {
   const d = new Date(isoDateTime)
   return new Intl.DateTimeFormat("ar-u-nu-latn", {

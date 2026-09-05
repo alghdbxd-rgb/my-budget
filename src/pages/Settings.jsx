@@ -90,6 +90,7 @@ export default function Settings() {
           </div>
           <button
             onClick={() => updateSettings({ theme: isDark ? "light" : "dark" })}
+            aria-label="تبديل الوضع الداكن"
             className={`relative h-7 w-12 rounded-full transition ${isDark ? "bg-teal-600" : "bg-slate-200"}`}
           >
             <span
