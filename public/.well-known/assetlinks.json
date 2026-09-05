@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.netlify.gentle_travesseiro_720763.twa",
+        "sha256_cert_fingerprints": ["98:26:E2:D8:56:6B:E1:5D:B2:E7:D8:83:6F:9B:B0:A4:10:F0:05:64:EA:36:6A:2E:36:58:C8:AC:1C:B0:23:86"]
+      }
+    }]
