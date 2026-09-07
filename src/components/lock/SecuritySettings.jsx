@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useLock } from "../../context/LockContext"
 import { Button } from "../ui/Button"
 import { Card, CardHeader } from "../ui/Card"
+import { ModalFooter } from "../ui/FormSection"
 import { Modal } from "../ui/Modal"
 
 function PasswordModal({ open, onClose, mode, onSubmit }) {
@@ -92,7 +93,7 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-2 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+        <ModalFooter>
           <Button type="submit" disabled={busy}>
             {isChange ? "حفظ كلمة المرور الجديدة" : "تفعيل القفل"}
           </Button>
@@ -106,7 +107,7 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
           >
             إلغاء
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   )

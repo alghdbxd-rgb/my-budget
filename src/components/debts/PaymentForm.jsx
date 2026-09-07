@@ -5,6 +5,7 @@ import { formatMoney, todayIso } from "../../lib/format"
 import { toWesternDigits } from "../../lib/numeral"
 import { debtRemaining } from "../../lib/selectors"
 import { Button } from "../ui/Button"
+import { ModalFooter } from "../ui/FormSection"
 import { Modal } from "../ui/Modal"
 
 export function PaymentForm({ open, onClose, debt }) {
@@ -82,14 +83,14 @@ export function PaymentForm({ open, onClose, debt }) {
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-2 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+        <ModalFooter>
           <Button type="submit">
             تسجيل الدفعة
           </Button>
           <Button type="button" variant="secondary" onClick={onClose}>
             إلغاء
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   )

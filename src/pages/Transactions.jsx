@@ -1,34 +1,13 @@
-import { ArrowLeftRight, ChevronDown, ChevronUp, Pencil, Plus, Receipt, Search, Trash2 } from "lucide-react"
+import { ArrowLeftRight, Pencil, Plus, Receipt, Search, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { TransactionForm } from "../components/transactions/TransactionForm"
+import { Badge } from "../components/ui/Badge"
 import { Card } from "../components/ui/Card"
-import { EmptyState } from "../components/ui/EmptyState"
+import { ListPageHeader, ListView } from "../components/ui/ListView"
 import { useBudget } from "../context/BudgetContext"
 import { formatMoney, formatShortDate, monthKey as getMonthKey, monthLabel } from "../lib/format"
 import { accountById, categoryById, sumByType } from "../lib/selectors"
-
-function SortHeader({ label, active, dir, onClick, align = "right" }) {
-  return (
-    <th
-      onClick={onClick}
-      className={`cursor-pointer select-none px-4 py-2.5 text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 ${
-        align === "left" ? "text-left" : "text-right"
-      }`}
-    >
-      <span className={`flex items-center gap-1 ${align === "left" ? "justify-start" : "justify-end"}`}>
-        {label}
-        {active ? (
-          dir === "asc" ? (
-            <ChevronUp size={12} />
-          ) : (
-            <ChevronDown size={12} />
-          )
-        ) : null}
-      </span>
-    </th>
-  )
-}
 
 export default function Transactions() {
   const { state, deleteTransaction } = useBudget()
@@ -82,26 +61,109 @@ export default function Transactions() {
     if (window.confirm("حذف هذه العملية نهائياً؟")) deleteTransaction(id)
   }
 
+  const columns = [
+    {
+      key: "date",
+      label: "التاريخ",
+      sortKey: "date",
+      className: "whitespace-nowrap text-slate-500 dark:text-slate-400",
+      render: (t) => formatShortDate(t.date),
+    },
+    {
+      key: "desc",
+      label: "الوصف",
+      className: "font-medium text-slate-700 dark:text-slate-200",
+      render: (t) => {
+        if (t.type !== "transfer") return t.note || categoryById(state.categories, t.categoryId)?.name || "بدون وصف"
+        const from = accountById(state.accounts, t.accountId)
+        const to = accountById(state.accounts, t.toAccountId)
+        return (
+          <span className="flex items-center gap-1.5">
+            <ArrowLeftRight size={13} className="text-slate-400" />
+            تحويل: {from?.name ?? "؟"} ← {to?.name ?? "؟"}
+          </span>
+        )
+      },
+    },
+    {
+      key: "category",
+      label: "التصنيف",
+      render: (t) => {
+        if (t.type === "transfer") return <Badge tone="slate">تحويل</Badge>
+        const cat = categoryById(state.categories, t.categoryId)
+        return <Badge color={cat?.color ?? "#94a3b8"}>{cat?.name ?? "غير مصنف"}</Badge>
+      },
+    },
+    {
+      key: "account",
+      label: "الحساب",
+      className: "text-slate-500 dark:text-slate-400",
+      render: (t) => accountById(state.accounts, t.accountId)?.name ?? "—",
+    },
+    {
+      key: "amount",
+      label: "المبلغ",
+      align: "left",
+      sortKey: "amount",
+      className: "font-semibold tabular-nums",
+      render: (t) => {
+        const isTransfer = t.type === "transfer"
+        const isIncome = t.type === "income"
+        return (
+          <span className={isTransfer ? "text-slate-500 dark:text-slate-400" : isIncome ? "text-green-600" : "text-rose-500"}>
+            {!isTransfer && (isIncome ? "+" : "-")}
+            {formatMoney(t.amount, state.settings.currency)}
+          </span>
+        )
+      },
+    },
+    {
+      key: "actions",
+      label: "",
+      align: "center",
+      headerClassName: "w-16",
+      render: (t) => (
+        <div className="flex items-center justify-center gap-0.5">
+          <button
+            aria-label="تعديل"
+            onClick={() => {
+              setEditing(t)
+              setFormOpen(true)
+            }}
+            className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          >
+            <Pencil size={13} />
+          </button>
+          <button
+            aria-label="حذف"
+            onClick={() => handleDelete(t.id)}
+            className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-950/40"
+          >
+            <Trash2 size={13} />
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div>
-          <h1 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">العمليات</h1>
-          <p className="mt-0.5 text-xs text-slate-400">
-            {filtered.length} عملية {search || type !== "all" || categoryId !== "all" || month !== "all" ? "مطابقة" : "مسجّلة"}
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            setEditing(null)
-            setFormOpen(true)
-          }}
-          className="flex items-center gap-1.5 rounded-md bg-primary-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm shadow-primary-600/20 transition hover:bg-primary-700"
-        >
-          <Plus size={15} />
-          عملية جديدة
-        </button>
-      </div>
+      <ListPageHeader
+        title="العمليات"
+        subtitle={`${filtered.length} عملية ${search || type !== "all" || categoryId !== "all" || month !== "all" ? "مطابقة" : "مسجّلة"}`}
+        action={
+          <button
+            onClick={() => {
+              setEditing(null)
+              setFormOpen(true)
+            }}
+            className="flex items-center gap-1.5 rounded-md bg-primary-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm shadow-primary-600/20 transition hover:bg-primary-700"
+          >
+            <Plus size={15} />
+            عملية جديدة
+          </button>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
         <Card className="flex items-center justify-between !p-3.5">
@@ -164,121 +226,16 @@ export default function Transactions() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-        {filtered.length === 0 ? (
-          <EmptyState
-            icon={<Receipt size={22} />}
-            title="لا توجد عمليات مطابقة"
-            description="جرّب تغيير الفلاتر أو أضف عملية جديدة"
-          />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-800/40">
-                  <SortHeader
-                    label="التاريخ"
-                    active={sort.key === "date"}
-                    dir={sort.dir}
-                    onClick={() => toggleSort("date")}
-                  />
-                  <th className="px-4 py-2.5 text-right text-[11.5px] font-semibold text-slate-500 dark:text-slate-400">
-                    الوصف
-                  </th>
-                  <th className="px-4 py-2.5 text-right text-[11.5px] font-semibold text-slate-500 dark:text-slate-400">
-                    التصنيف
-                  </th>
-                  <th className="px-4 py-2.5 text-right text-[11.5px] font-semibold text-slate-500 dark:text-slate-400">
-                    الحساب
-                  </th>
-                  <SortHeader
-                    label="المبلغ"
-                    active={sort.key === "amount"}
-                    dir={sort.dir}
-                    onClick={() => toggleSort("amount")}
-                    align="left"
-                  />
-                  <th className="w-16" />
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((t) => {
-                  const isTransfer = t.type === "transfer"
-                  const isIncome = t.type === "income"
-                  const category = !isTransfer ? categoryById(state.categories, t.categoryId) : null
-                  const fromAccount = accountById(state.accounts, t.accountId)
-                  const toAccount = isTransfer ? accountById(state.accounts, t.toAccountId) : null
-
-                  return (
-                    <tr
-                      key={t.id}
-                      className="border-b border-slate-100 last:border-0 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/40"
-                    >
-                      <td className="whitespace-nowrap px-4 py-2.5 text-slate-500 dark:text-slate-400">
-                        {formatShortDate(t.date)}
-                      </td>
-                      <td className="px-4 py-2.5 font-medium text-slate-700 dark:text-slate-200">
-                        {isTransfer ? (
-                          <span className="flex items-center gap-1.5">
-                            <ArrowLeftRight size={13} className="text-slate-400" />
-                            تحويل: {fromAccount?.name ?? "؟"} ← {toAccount?.name ?? "؟"}
-                          </span>
-                        ) : (
-                          (t.note || category?.name || "بدون وصف")
-                        )}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        {isTransfer ? (
-                          <span className="rounded px-2 py-0.5 text-[11px] font-semibold" style={{ background: "#64748b1a", color: "#64748b" }}>
-                            تحويل
-                          </span>
-                        ) : (
-                          <span
-                            className="rounded px-2 py-0.5 text-[11px] font-semibold"
-                            style={{ background: `${category?.color ?? "#94a3b8"}1a`, color: category?.color ?? "#94a3b8" }}
-                          >
-                            {category?.name ?? "غير مصنف"}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400">{fromAccount?.name ?? "—"}</td>
-                      <td
-                        className={`px-4 py-2.5 text-left font-semibold tabular-nums ${
-                          isTransfer ? "text-slate-500 dark:text-slate-400" : isIncome ? "text-green-600" : "text-rose-500"
-                        }`}
-                      >
-                        {!isTransfer && (isIncome ? "+" : "-")}
-                        {formatMoney(t.amount, state.settings.currency)}
-                      </td>
-                      <td className="px-2 py-2.5">
-                        <div className="flex items-center justify-center gap-0.5">
-                          <button
-                            aria-label="تعديل"
-                            onClick={() => {
-                              setEditing(t)
-                              setFormOpen(true)
-                            }}
-                            className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
-                          >
-                            <Pencil size={13} />
-                          </button>
-                          <button
-                            aria-label="حذف"
-                            onClick={() => handleDelete(t.id)}
-                            className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-950/40"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <ListView
+        columns={columns}
+        rows={filtered}
+        rowKey={(t) => t.id}
+        sort={sort}
+        onSort={toggleSort}
+        emptyIcon={<Receipt size={22} />}
+        emptyTitle="لا توجد عمليات مطابقة"
+        emptyDescription="جرّب تغيير الفلاتر أو أضف عملية جديدة"
+      />
 
       <TransactionForm
         open={formOpen}

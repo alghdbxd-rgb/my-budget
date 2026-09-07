@@ -5,6 +5,7 @@ import { todayIso } from "../../lib/format"
 import { toWesternDigits } from "../../lib/numeral"
 import { INPUT_CLASS } from "../../lib/ui"
 import { Button } from "../ui/Button"
+import { FormDivider, FormSection, ModalFooter } from "../ui/FormSection"
 import { Modal } from "../ui/Modal"
 
 const TYPE_OPTIONS = [
@@ -12,12 +13,6 @@ const TYPE_OPTIONS = [
   { value: "income", label: "دخل" },
   { value: "transfer", label: "تحويل" },
 ]
-
-function SectionLabel({ children }) {
-  return (
-    <span className="text-[11px] font-bold tracking-wide text-slate-400 dark:text-slate-500">{children}</span>
-  )
-}
 
 const emptyForm = (type, accountId) => ({
   type,
@@ -128,10 +123,7 @@ export function TransactionForm({ open, onClose, transaction }) {
   return (
     <Modal open={open} onClose={onClose} title={isEdit ? "تعديل العملية" : "عملية جديدة"}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* معلومات العملية */}
-        <div className="flex flex-col gap-3">
-          <SectionLabel>معلومات العملية</SectionLabel>
-
+        <FormSection title="معلومات العملية">
           <div className="grid grid-cols-3 gap-2 rounded-md bg-slate-100 p-1 dark:bg-slate-800">
             {TYPE_OPTIONS.map((opt) => (
               <button
@@ -176,14 +168,11 @@ export function TransactionForm({ open, onClose, transaction }) {
               />
             </label>
           </div>
-        </div>
+        </FormSection>
 
-        <div className="border-t border-slate-100 dark:border-slate-800" />
+        <FormDivider />
 
-        {/* التصنيف والحساب */}
-        <div className="flex flex-col gap-3">
-          <SectionLabel>{isTransfer ? "الحسابات" : "التصنيف والحساب"}</SectionLabel>
-
+        <FormSection title={isTransfer ? "الحسابات" : "التصنيف والحساب"}>
           {isTransfer ? (
             <div className="grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-1.5">
@@ -258,13 +247,11 @@ export function TransactionForm({ open, onClose, transaction }) {
               🔎 اقترحنا هذا التصنيف تلقائياً من الملاحظة
             </span>
           )}
-        </div>
+        </FormSection>
 
-        <div className="border-t border-slate-100 dark:border-slate-800" />
+        <FormDivider />
 
-        {/* تفاصيل إضافية */}
-        <div className="flex flex-col gap-3">
-          <SectionLabel>تفاصيل إضافية</SectionLabel>
+        <FormSection title="تفاصيل إضافية">
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
               ملاحظة (اختياري)
@@ -277,16 +264,16 @@ export function TransactionForm({ open, onClose, transaction }) {
               className={INPUT_CLASS}
             />
           </label>
-        </div>
+        </FormSection>
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+        <ModalFooter>
           <Button type="submit">{isEdit ? "حفظ التعديلات" : "إضافة العملية"}</Button>
           <Button type="button" variant="secondary" onClick={onClose}>
             إلغاء
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   )

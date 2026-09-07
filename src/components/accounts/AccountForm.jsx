@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { INPUT_CLASS } from "../../lib/ui"
 import { useBudget } from "../../context/BudgetContext"
 import { Button } from "../ui/Button"
+import { ModalFooter } from "../ui/FormSection"
 import { Modal } from "../ui/Modal"
 
 const PALETTE = [
@@ -83,14 +84,14 @@ export function AccountForm({ open, onClose, account }) {
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-2 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+        <ModalFooter>
           <Button type="submit">
             {isEdit ? "حفظ التعديلات" : "إضافة الحساب"}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose}>
             إلغاء
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   )
