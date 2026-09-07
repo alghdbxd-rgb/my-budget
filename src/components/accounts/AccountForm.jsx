@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
+import { INPUT_CLASS } from "../../lib/ui"
 import { useBudget } from "../../context/BudgetContext"
 import { Button } from "../ui/Button"
+import { ModalFooter } from "../ui/FormSection"
 import { Modal } from "../ui/Modal"
 
 const PALETTE = [
@@ -56,7 +58,7 @@ export function AccountForm({ open, onClose, account }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="مثال: نقد، ماستر، بنك..."
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -82,14 +84,14 @@ export function AccountForm({ open, onClose, account }) {
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex gap-2">
-          <Button type="submit" className="flex-1">
+        <ModalFooter>
+          <Button type="submit">
             {isEdit ? "حفظ التعديلات" : "إضافة الحساب"}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose}>
             إلغاء
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   )

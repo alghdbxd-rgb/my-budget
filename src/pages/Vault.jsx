@@ -43,7 +43,7 @@ function SecretCard({ entry, onEdit, onDelete }) {
   }
 
   return (
-    <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+    <div className="flex flex-col gap-2.5 rounded-lg border border-slate-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-start justify-between gap-2">
         <h3 className="min-w-0 flex-1 truncate font-bold text-slate-800 dark:text-slate-100">
           {entry.title}
@@ -73,7 +73,7 @@ function SecretCard({ entry, onEdit, onDelete }) {
           </span>
           <button
             onClick={() => handleCopy("username", entry.username)}
-            className="shrink-0 text-slate-400 hover:text-teal-600"
+            className="shrink-0 text-slate-400 hover:text-primary-600"
             aria-label="نسخ اسم المستخدم"
           >
             {copied === "username" ? <Check size={14} /> : <Copy size={14} />}
@@ -96,7 +96,7 @@ function SecretCard({ entry, onEdit, onDelete }) {
             </button>
             <button
               onClick={() => handleCopy("password", entry.password)}
-              className="text-slate-400 hover:text-teal-600"
+              className="text-slate-400 hover:text-primary-600"
               aria-label="نسخ كلمة المرور"
             >
               {copied === "password" ? <Check size={14} /> : <Copy size={14} />}
@@ -214,7 +214,7 @@ export default function Vault() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ابحث بالاسم أو المستخدم..."
-            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="w-full rounded-md border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </div>
       )}

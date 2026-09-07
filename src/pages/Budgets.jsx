@@ -20,7 +20,7 @@ function BudgetRow({ category, limit, currency, onChangeLimit, onRemove }) {
   const over = limit > 0 && spent > limit
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-slate-100 p-3.5 dark:border-slate-800">
+    <div className="flex flex-col gap-2 rounded-md border border-slate-100 p-3.5 dark:border-slate-800">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="size-2.5 rounded-full" style={{ backgroundColor: category.color }} />
@@ -33,7 +33,7 @@ function BudgetRow({ category, limit, currency, onChangeLimit, onRemove }) {
             value={limit || ""}
             onChange={(e) => onChangeLimit(Number(toWesternDigits(e.target.value)) || 0)}
             placeholder="بلا حد"
-            className="w-28 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-left text-sm outline-none focus:border-teal-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="w-28 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-left text-sm outline-none focus:border-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
           {limit > 0 && (
             <button
@@ -50,7 +50,7 @@ function BudgetRow({ category, limit, currency, onChangeLimit, onRemove }) {
         <>
           <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
             <div
-              className={`h-full rounded-full transition-all ${over ? "bg-rose-500" : "bg-teal-500"}`}
+              className={`h-full rounded-full transition-all ${over ? "bg-rose-500" : "bg-green-500"}`}
               style={{ width: `${percent}%` }}
             />
           </div>
@@ -116,7 +116,7 @@ export default function Budgets() {
             </Button>
           }
         />
-        <div className="mb-3 flex gap-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        <div className="mb-3 flex gap-2 rounded-md bg-slate-100 p-1 dark:bg-slate-800">
           {[
             { value: "expense", label: "مصروفات" },
             { value: "income", label: "دخل" },
@@ -126,7 +126,7 @@ export default function Budgets() {
               onClick={() => setTab(opt.value)}
               className={`flex-1 rounded-lg py-1.5 text-sm font-bold transition ${
                 tab === opt.value
-                  ? "bg-white text-teal-700 shadow-sm dark:bg-slate-900 dark:text-teal-400"
+                  ? "bg-white text-primary-700 shadow-sm dark:bg-slate-900 dark:text-primary-400"
                   : "text-slate-500 dark:text-slate-400"
               }`}
             >
@@ -138,7 +138,7 @@ export default function Budgets() {
           {visibleCategories.map((cat) => (
             <div
               key={cat.id}
-              className="flex items-center justify-between gap-2 rounded-xl border border-slate-100 px-3 py-2.5 dark:border-slate-800"
+              className="flex items-center justify-between gap-2 rounded-md border border-slate-100 px-3 py-2.5 dark:border-slate-800"
             >
               <div className="flex min-w-0 items-center gap-2">
                 <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: cat.color }} />

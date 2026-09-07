@@ -1,5 +1,6 @@
 import { Pencil, Pin, PinOff, Plus, Search, StickyNote, Trash2 } from "lucide-react"
 import { useMemo, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { NoteForm } from "../components/notes/NoteForm"
 import { Button } from "../components/ui/Button"
 import { EmptyState } from "../components/ui/EmptyState"
@@ -10,7 +11,7 @@ import { sortedNotes } from "../lib/selectors"
 function NoteCard({ note, onEdit, onDelete, onTogglePin }) {
   return (
     <div
-      className="flex flex-col gap-2 rounded-2xl border-r-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-900"
+      className="flex flex-col gap-2 rounded-lg border-r-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-900"
       style={{ borderColor: note.color }}
     >
       <div className="flex items-start justify-between gap-2">
@@ -61,7 +62,8 @@ function NoteCard({ note, onEdit, onDelete, onTogglePin }) {
 
 export default function Notes() {
   const { state, deleteNote, toggleNotePin } = useBudget()
-  const [search, setSearch] = useState("")
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get("q") ?? "")
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
 
@@ -97,9 +99,12 @@ export default function Notes() {
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              if (searchParams.get("q")) setSearchParams({})
+            }}
             placeholder="ابحث بالعنوان أو المحتوى..."
-            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="w-full rounded-md border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </div>
       )}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
+import { INPUT_CLASS } from "../../lib/ui"
 import { useVault } from "../../context/VaultContext"
 import { Button } from "../ui/Button"
+import { ModalFooter } from "../ui/FormSection"
 import { Modal } from "../ui/Modal"
 
 export function SecretForm({ open, onClose, entry }) {
@@ -56,7 +58,7 @@ export function SecretForm({ open, onClose, entry }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="مثال: البنك الأهلي، فيسبوك، إيميل..."
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -68,7 +70,7 @@ export function SecretForm({ open, onClose, entry }) {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -78,7 +80,7 @@ export function SecretForm({ open, onClose, entry }) {
             type="text"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -91,20 +93,20 @@ export function SecretForm({ open, onClose, entry }) {
             onChange={(e) => setNote(e.target.value)}
             rows={4}
             placeholder="مثال: رمز التحقق الاحتياطي، رقم الحساب، PIN..."
-            className="resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={`${INPUT_CLASS} resize-none leading-relaxed`}
           />
         </label>
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex gap-2">
-          <Button type="submit" disabled={busy} className="flex-1">
+        <ModalFooter>
+          <Button type="submit" disabled={busy}>
             {isEdit ? "حفظ التعديلات" : "إضافة الحساب"}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose}>
             إلغاء
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   )

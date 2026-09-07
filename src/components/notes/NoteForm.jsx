@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { useBudget } from "../../context/BudgetContext"
 import { NOTE_COLORS } from "../../lib/defaultData"
+import { INPUT_CLASS } from "../../lib/ui"
 import { Button } from "../ui/Button"
+import { ModalFooter } from "../ui/FormSection"
 import { Modal } from "../ui/Modal"
 
 export function NoteForm({ open, onClose, note }) {
@@ -47,7 +49,7 @@ export function NoteForm({ open, onClose, note }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="مثال: أرقام مهمة، أفكار، مواعيد..."
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={`${INPUT_CLASS} font-semibold`}
           />
         </label>
 
@@ -58,7 +60,7 @@ export function NoteForm({ open, onClose, note }) {
             onChange={(e) => setContent(e.target.value)}
             placeholder="اكتب تفاصيل الملاحظة هنا..."
             rows={7}
-            className="resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={`${INPUT_CLASS} resize-none leading-relaxed`}
           />
         </label>
 
@@ -84,14 +86,14 @@ export function NoteForm({ open, onClose, note }) {
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex gap-2">
-          <Button type="submit" className="flex-1">
+        <ModalFooter>
+          <Button type="submit">
             {isEdit ? "حفظ التعديلات" : "إضافة الملاحظة"}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose}>
             إلغاء
           </Button>
-        </div>
+        </ModalFooter>
       </form>
     </Modal>
   )

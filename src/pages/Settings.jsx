@@ -76,14 +76,14 @@ export default function Settings() {
       </div>
 
       {message && (
-        <div className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-700 dark:bg-teal-950/30 dark:text-teal-400">
+        <div className="rounded-md bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 dark:bg-green-950/30 dark:text-green-400">
           {message}
         </div>
       )}
 
       <Card>
         <CardHeader title="المظهر" />
-        <div className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3 dark:border-slate-800">
+        <div className="flex items-center justify-between rounded-md border border-slate-100 px-4 py-3 dark:border-slate-800">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
             {isDark ? <Moon size={16} /> : <Sun size={16} />}
             {isDark ? "الوضع الداكن مفعّل" : "الوضع الفاتح مفعّل"}
@@ -91,7 +91,7 @@ export default function Settings() {
           <button
             onClick={() => updateSettings({ theme: isDark ? "light" : "dark" })}
             aria-label="تبديل الوضع الداكن"
-            className={`relative h-7 w-12 rounded-full transition ${isDark ? "bg-teal-600" : "bg-slate-200"}`}
+            className={`relative h-7 w-12 rounded-full transition ${isDark ? "bg-primary-600" : "bg-slate-200"}`}
           >
             <span
               className={`absolute top-1 size-5 rounded-full bg-white transition-all ${
@@ -115,9 +115,9 @@ export default function Settings() {
             <button
               key={c.code}
               onClick={() => updateSettings({ currency: c.code })}
-              className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
+              className={`flex items-center justify-between rounded-md border px-3 py-2.5 text-sm font-semibold transition ${
                 state.settings.currency === c.code
-                  ? "border-teal-500 bg-teal-50 text-teal-700 dark:border-teal-500 dark:bg-teal-950/30 dark:text-teal-400"
+                  ? "border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-950/30 dark:text-primary-400"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               }`}
             >
