@@ -14,7 +14,7 @@ export const GOVERNORATES = [
 
 export const COMPLAINTS = [
   { id: 'pain', label: 'ألم', icon: '🦷', specialty: 'طب أسنان عام' },
-  { id: 'decay', label: 'تسوّس', icon: '🕳️', specialty: 'علاج تسوّس' },
+  { id: 'decay', label: 'تسوّس', icon: '🦠', specialty: 'علاج تسوّس' },
   { id: 'gum', label: 'لثة', icon: '🩸', specialty: 'علاج لثة' },
   { id: 'ortho', label: 'تقويم', icon: '📐', specialty: 'تقويم أسنان' },
   { id: 'cosmetic', label: 'تجميل', icon: '✨', specialty: 'تجميل أسنان' },
