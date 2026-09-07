@@ -3,6 +3,7 @@ import { useBudget } from "../../context/BudgetContext"
 import { guessCategoryId } from "../../lib/autoCategorize"
 import { todayIso } from "../../lib/format"
 import { toWesternDigits } from "../../lib/numeral"
+import { INPUT_CLASS } from "../../lib/ui"
 import { Button } from "../ui/Button"
 import { Modal } from "../ui/Modal"
 
@@ -11,9 +12,6 @@ const TYPE_OPTIONS = [
   { value: "income", label: "دخل" },
   { value: "transfer", label: "تحويل" },
 ]
-
-const inputClass =
-  "rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
 
 function SectionLabel({ children }) {
   return (
@@ -165,7 +163,7 @@ export function TransactionForm({ open, onClose, transaction }) {
                 value={form.amount}
                 onChange={(e) => setForm((f) => ({ ...f, amount: toWesternDigits(e.target.value) }))}
                 placeholder="0.00"
-                className={inputClass}
+                className={INPUT_CLASS}
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -174,7 +172,7 @@ export function TransactionForm({ open, onClose, transaction }) {
                 type="date"
                 value={form.date}
                 onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-                className={inputClass}
+                className={INPUT_CLASS}
               />
             </label>
           </div>
@@ -193,7 +191,7 @@ export function TransactionForm({ open, onClose, transaction }) {
                 <select
                   value={form.accountId}
                   onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
-                  className={inputClass}
+                  className={INPUT_CLASS}
                 >
                   <option value="">اختر حساب</option>
                   {state.accounts.map((a) => (
@@ -208,7 +206,7 @@ export function TransactionForm({ open, onClose, transaction }) {
                 <select
                   value={form.toAccountId}
                   onChange={(e) => setForm((f) => ({ ...f, toAccountId: e.target.value }))}
-                  className={inputClass}
+                  className={INPUT_CLASS}
                 >
                   <option value="">اختر حساب</option>
                   {state.accounts.map((a) => (
@@ -229,7 +227,7 @@ export function TransactionForm({ open, onClose, transaction }) {
                     setAutoPicked(false)
                     setForm((f) => ({ ...f, categoryId: e.target.value }))
                   }}
-                  className={inputClass}
+                  className={INPUT_CLASS}
                 >
                   <option value="">اختر تصنيف</option>
                   {categories.map((c) => (
@@ -244,7 +242,7 @@ export function TransactionForm({ open, onClose, transaction }) {
                 <select
                   value={form.accountId}
                   onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
-                  className={inputClass}
+                  className={INPUT_CLASS}
                 >
                   {state.accounts.map((a) => (
                     <option key={a.id} value={a.id}>
@@ -276,7 +274,7 @@ export function TransactionForm({ open, onClose, transaction }) {
               value={form.note}
               onChange={(e) => (isTransfer ? setForm((f) => ({ ...f, note: e.target.value })) : applyNote(e.target.value))}
               placeholder={isTransfer ? "مثال: سحب من الماستر" : "مثال: تكسي، غداء، فاتورة كهرباء..."}
-              className={inputClass}
+              className={INPUT_CLASS}
             />
           </label>
         </div>

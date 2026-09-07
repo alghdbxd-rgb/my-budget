@@ -36,7 +36,6 @@ import { currentMonthKey, formatMoney, monthLabel } from "../lib/format"
 import {
   accountBalances,
   budgetUsage,
-  categoryById,
   categoryBreakdown,
   debtsSummary,
   monthlyTrend,
@@ -44,6 +43,7 @@ import {
   sumByType,
   totalBalance,
   transactionsForMonth,
+  upcomingRecurring,
 } from "../lib/selectors"
 
 const QUICK_LINKS = [
@@ -123,7 +123,10 @@ export default function Dashboard() {
   const debts = useMemo(() => debtsSummary(state.debts), [state.debts])
   const hasDebts = debts.owedToMe > 0 || debts.owedByMe > 0
   const topBudgets = usage.slice(0, 3)
-  const activeRecurring = state.recurring.filter((r) => r.active)
+  const upcoming = useMemo(
+    () => upcomingRecurring(state.recurring, state.categories),
+    [state.recurring, state.categories],
+  )
   const recentNotes = useMemo(() => sortedNotes(state.notes).slice(0, 3), [state.notes])
 
   return (
@@ -287,32 +290,38 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader
-            title="العمليات المتكررة"
+            title="العمليات المتكررة القادمة"
             action={
               <Link to="/settings" className="text-sm font-semibold text-primary-600 hover:underline">
                 إدارة
               </Link>
             }
           />
-          {activeRecurring.length === 0 ? (
-            <EmptyState icon={<Repeat size={22} />} title="ما فيه عمليات متكررة مفعّلة" />
+          {upcoming.length === 0 ? (
+            <EmptyState icon={<Repeat size={22} />} title="ما فيه عمليات متكررة قادمة هذا الشهر" />
           ) : (
             <div className="flex flex-col gap-2">
-              {activeRecurring.slice(0, 3).map((r) => {
-                const cat = categoryById(state.categories, r.categoryId)
-                return (
-                  <div key={r.id} className="flex items-center justify-between gap-2 text-sm">
-                    <span className="min-w-0 truncate text-slate-600 dark:text-slate-300">
-                      {cat?.name ?? "غير مصنف"} · يوم {r.dayOfMonth}
-                    </span>
+              {upcoming.slice(0, 3).map((r) => (
+                <div key={r.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="min-w-0 truncate text-slate-600 dark:text-slate-300">
+                    {r.category?.name ?? "غير مصنف"} · يوم {r.dayOfMonth}
+                  </span>
+                  <span className="flex shrink-0 items-center gap-2">
                     <span
-                      className={`shrink-0 font-bold ${r.type === "income" ? "text-green-600" : "text-rose-500"}`}
+                      className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${
+                        r.daysUntil === 0
+                          ? "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+                          : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
                     >
+                      {r.daysUntil === 0 ? "اليوم" : `بعد ${r.daysUntil} يوم`}
+                    </span>
+                    <span className={`font-bold ${r.type === "income" ? "text-green-600" : "text-rose-500"}`}>
                       {formatMoney(r.amount, currency)}
                     </span>
-                  </div>
-                )
-              })}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </Card>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { INPUT_CLASS } from "../../lib/ui"
 import { useBudget } from "../../context/BudgetContext"
 import { toWesternDigits } from "../../lib/numeral"
 import { Button } from "../ui/Button"
@@ -92,7 +93,7 @@ export function RecurringForm({ open, onClose, rule }) {
             value={form.amount}
             onChange={(e) => setForm((f) => ({ ...f, amount: toWesternDigits(e.target.value) }))}
             placeholder="0.00"
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -101,7 +102,7 @@ export function RecurringForm({ open, onClose, rule }) {
           <select
             value={form.categoryId}
             onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           >
             <option value="">اختر تصنيف</option>
             {categories.map((c) => (
@@ -117,7 +118,7 @@ export function RecurringForm({ open, onClose, rule }) {
           <select
             value={form.accountId}
             onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           >
             {state.accounts.map((a) => (
               <option key={a.id} value={a.id}>
@@ -136,7 +137,7 @@ export function RecurringForm({ open, onClose, rule }) {
             inputMode="numeric"
             value={form.dayOfMonth}
             onChange={(e) => setForm((f) => ({ ...f, dayOfMonth: toWesternDigits(e.target.value) }))}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -149,7 +150,7 @@ export function RecurringForm({ open, onClose, rule }) {
             value={form.note}
             onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
             placeholder="مثال: الراتب الشهري"
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 

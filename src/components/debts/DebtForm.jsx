@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { INPUT_CLASS } from "../../lib/ui"
 import { useBudget } from "../../context/BudgetContext"
 import { todayIso } from "../../lib/format"
 import { toWesternDigits } from "../../lib/numeral"
@@ -79,7 +80,7 @@ export function DebtForm({ open, onClose, defaultDirection = "owed_by_me" }) {
             value={form.person}
             onChange={(e) => setForm((f) => ({ ...f, person: e.target.value }))}
             placeholder="مثال: أمي، كرار، عمر..."
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -91,7 +92,7 @@ export function DebtForm({ open, onClose, defaultDirection = "owed_by_me" }) {
             value={form.amount}
             onChange={(e) => setForm((f) => ({ ...f, amount: toWesternDigits(e.target.value) }))}
             placeholder="0.00"
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -101,7 +102,7 @@ export function DebtForm({ open, onClose, defaultDirection = "owed_by_me" }) {
             type="date"
             value={form.date}
             onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 
@@ -114,7 +115,7 @@ export function DebtForm({ open, onClose, defaultDirection = "owed_by_me" }) {
             value={form.note}
             onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
             placeholder="مثال: سلفة، قسط..."
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 

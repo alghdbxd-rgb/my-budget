@@ -14,10 +14,11 @@ import {
   Sun,
   Wallet,
 } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useBudget } from "../../context/BudgetContext"
 import { useLock } from "../../context/LockContext"
+import { categoryById } from "../../lib/selectors"
 import { TransactionForm } from "../transactions/TransactionForm"
 import { Button } from "../ui/Button"
 
@@ -71,19 +72,46 @@ export function AppLayout() {
   const navigate = useNavigate()
   const [formOpen, setFormOpen] = useState(false)
   const [query, setQuery] = useState("")
+  const [resultsOpen, setResultsOpen] = useState(false)
   const isDark = state.settings.theme === "dark"
   const currentNav = useCurrentNav()
+
+  const searchResults = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (q.length < 2) return { transactions: [], notes: [], debts: [] }
+    const transactions = state.transactions
+      .filter((t) => {
+        const cat = categoryById(state.categories, t.categoryId)
+        return `${cat?.name ?? ""} ${t.note ?? ""}`.toLowerCase().includes(q)
+      })
+      .slice(0, 5)
+    const notes = state.notes
+      .filter((n) => `${n.title} ${n.content}`.toLowerCase().includes(q))
+      .slice(0, 5)
+    const debts = state.debts
+      .filter((d) => `${d.person} ${d.note ?? ""}`.toLowerCase().includes(q))
+      .slice(0, 5)
+    return { transactions, notes, debts }
+  }, [query, state.transactions, state.notes, state.debts, state.categories])
+
+  const hasResults =
+    searchResults.transactions.length > 0 || searchResults.notes.length > 0 || searchResults.debts.length > 0
+
+  function goTo(path) {
+    navigate(path)
+    setQuery("")
+    setResultsOpen(false)
+  }
 
   function handleSearchSubmit(e) {
     e.preventDefault()
     if (!query.trim()) return
-    navigate(`/transactions?q=${encodeURIComponent(query.trim())}`)
-    setQuery("")
+    goTo(`/transactions?q=${encodeURIComponent(query.trim())}`)
   }
 
   return (
     <div className="flex min-h-screen bg-[#f7fafc] dark:bg-[#0b1120]">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-l border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900 md:flex">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-l border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900 md:flex print:hidden">
         <div className="mb-8 flex items-center gap-2 px-1.5">
           <div className="flex size-9 items-center justify-center rounded-md bg-primary-600 text-white">
             <Wallet size={18} />
@@ -106,7 +134,7 @@ export function AppLayout() {
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col pb-20 md:pb-0">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-6 dark:border-slate-800 dark:bg-slate-900/80">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-6 print:hidden dark:border-slate-800 dark:bg-slate-900/80">
           <div className="flex shrink-0 items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary-600 text-white md:hidden">
               <Wallet size={16} />
@@ -124,16 +152,89 @@ export function AppLayout() {
             </div>
           </div>
 
-          <form onSubmit={handleSearchSubmit} className="hidden max-w-sm flex-1 md:block">
+          <form onSubmit={handleSearchSubmit} className="relative hidden max-w-sm flex-1 md:block">
             <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 focus-within:border-primary-500 dark:border-slate-700 dark:bg-slate-800">
               <Search size={15} className="text-slate-400" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="بحث في العمليات..."
+                onFocus={() => setResultsOpen(true)}
+                onBlur={() => setTimeout(() => setResultsOpen(false), 150)}
+                placeholder="بحث في العمليات، الملاحظات، والديون..."
                 className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 dark:text-slate-100"
               />
             </div>
+
+            {resultsOpen && query.trim().length >= 2 && (
+              <div className="absolute top-full z-40 mt-1.5 w-full overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                {!hasResults ? (
+                  <p className="px-3 py-3 text-center text-xs text-slate-400">لا نتائج مطابقة</p>
+                ) : (
+                  <>
+                    {searchResults.transactions.length > 0 && (
+                      <div className="border-b border-slate-100 py-1.5 dark:border-slate-700">
+                        <p className="px-3 pb-1 text-[10.5px] font-bold text-slate-400">العمليات</p>
+                        {searchResults.transactions.map((t) => {
+                          const cat = categoryById(state.categories, t.categoryId)
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => goTo(`/transactions?q=${encodeURIComponent(query.trim())}`)}
+                              className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-right text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                            >
+                              <span className="min-w-0 truncate text-slate-700 dark:text-slate-200">
+                                {t.note || cat?.name || "بدون وصف"}
+                              </span>
+                              <span className="shrink-0 text-xs text-slate-400">{cat?.name}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                    {searchResults.notes.length > 0 && (
+                      <div className="border-b border-slate-100 py-1.5 dark:border-slate-700">
+                        <p className="px-3 pb-1 text-[10.5px] font-bold text-slate-400">الملاحظات</p>
+                        {searchResults.notes.map((n) => (
+                          <button
+                            key={n.id}
+                            type="button"
+                            onClick={() => goTo(`/notes?q=${encodeURIComponent(query.trim())}`)}
+                            className="flex w-full items-center gap-2 px-3 py-1.5 text-right text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                          >
+                            <span className="min-w-0 truncate text-slate-700 dark:text-slate-200">
+                              {n.title || "بدون عنوان"}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {searchResults.debts.length > 0 && (
+                      <div className="py-1.5">
+                        <p className="px-3 pb-1 text-[10.5px] font-bold text-slate-400">الديون والسلف</p>
+                        {searchResults.debts.map((d) => (
+                          <button
+                            key={d.id}
+                            type="button"
+                            onClick={() => goTo(`/debts?q=${encodeURIComponent(query.trim())}`)}
+                            className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-right text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                          >
+                            <span className="min-w-0 truncate text-slate-700 dark:text-slate-200">{d.person}</span>
+                            <span
+                              className={`shrink-0 text-xs font-semibold ${
+                                d.direction === "owed_to_me" ? "text-green-600" : "text-rose-500"
+                              }`}
+                            >
+                              {d.direction === "owed_to_me" ? "لي" : "علي"}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </form>
 
           <div className="flex shrink-0 items-center gap-1.5">
@@ -165,7 +266,7 @@ export function AppLayout() {
         </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-1 overflow-x-auto border-t border-slate-200 bg-white/95 px-2 py-2 backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-900/95">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-1 overflow-x-auto border-t border-slate-200 bg-white/95 px-2 py-2 backdrop-blur md:hidden print:hidden dark:border-slate-800 dark:bg-slate-900/95">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}

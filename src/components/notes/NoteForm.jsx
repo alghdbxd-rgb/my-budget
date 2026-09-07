@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useBudget } from "../../context/BudgetContext"
 import { NOTE_COLORS } from "../../lib/defaultData"
+import { INPUT_CLASS } from "../../lib/ui"
 import { Button } from "../ui/Button"
 import { Modal } from "../ui/Modal"
 
@@ -47,7 +48,7 @@ export function NoteForm({ open, onClose, note }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="مثال: أرقام مهمة، أفكار، مواعيد..."
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={`${INPUT_CLASS} font-semibold`}
           />
         </label>
 
@@ -58,7 +59,7 @@ export function NoteForm({ open, onClose, note }) {
             onChange={(e) => setContent(e.target.value)}
             placeholder="اكتب تفاصيل الملاحظة هنا..."
             rows={7}
-            className="resize-none rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={`${INPUT_CLASS} resize-none leading-relaxed`}
           />
         </label>
 

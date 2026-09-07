@@ -98,6 +98,22 @@ export function monthlyTrend(transactions, months = 6) {
   })
 }
 
+// العمليات المتكررة المفعّلة اللي لسه ما انسحبت هذا الشهر، مرتبة حسب أقرب موعد استحقاق
+export function upcomingRecurring(recurring, categories, referenceDate = new Date()) {
+  const today = referenceDate.getDate()
+  const thisMonthKey = monthKey(referenceDate.toISOString())
+
+  return recurring
+    .filter((r) => r.active && r.lastRunKey !== thisMonthKey)
+    .map((r) => ({
+      ...r,
+      category: categoryById(categories, r.categoryId),
+      daysUntil: r.dayOfMonth - today,
+    }))
+    .filter((r) => r.daysUntil >= 0)
+    .sort((a, b) => a.daysUntil - b.daysUntil)
+}
+
 export function budgetUsage(transactions, categories, budgets, key = currentMonthKey()) {
   const monthTx = transactionsForMonth(transactions, key)
   const spentByCategory = new Map()

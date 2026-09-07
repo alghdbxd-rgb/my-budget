@@ -1,4 +1,5 @@
 import { KeyRound, Lock, ShieldCheck, ShieldOff } from "lucide-react"
+import { INPUT_CLASS } from "../../lib/ui"
 import { useState } from "react"
 import { useLock } from "../../context/LockContext"
 import { Button } from "../ui/Button"
@@ -61,7 +62,7 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
               autoFocus
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
-              className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              className={INPUT_CLASS}
             />
           </label>
         )}
@@ -74,7 +75,7 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
             autoFocus={!isChange}
             value={next}
             onChange={(e) => setNext(e.target.value)}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -85,7 +86,7 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
             type="password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 

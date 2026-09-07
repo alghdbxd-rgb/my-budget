@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react"
+import { INPUT_CLASS } from "../../lib/ui"
 import { useState } from "react"
 import { useVault } from "../../context/VaultContext"
 import { Button } from "../ui/Button"
@@ -51,7 +52,7 @@ export function VaultSetup() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -62,7 +63,7 @@ export function VaultSetup() {
             type="password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className={INPUT_CLASS}
           />
         </label>
 

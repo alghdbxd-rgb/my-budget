@@ -1,4 +1,4 @@
-import { Download } from "lucide-react"
+import { Download, Printer } from "lucide-react"
 import { useMemo, useState } from "react"
 import {
   CartesianGrid,
@@ -72,19 +72,26 @@ export default function Reports() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">التقارير</h1>
-          <p className="mt-1 text-sm text-slate-400">تحليل تفصيلي لدخلك ومصروفاتك</p>
+          <p className="mt-1 text-sm text-slate-400 print:hidden">تحليل تفصيلي لدخلك ومصروفاتك</p>
+          <p className="mt-1 hidden text-sm text-slate-500 print:block">تقرير شهر {monthLabel(month)}</p>
         </div>
-        <select
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-        >
-          {monthOptions.map((m) => (
-            <option key={m} value={m}>
-              {monthLabel(m)}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2 print:hidden">
+          <select
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          >
+            {monthOptions.map((m) => (
+              <option key={m} value={m}>
+                {monthLabel(m)}
+              </option>
+            ))}
+          </select>
+          <Button variant="secondary" onClick={() => window.print()}>
+            <Printer size={14} />
+            طباعة / PDF
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -135,7 +142,7 @@ export default function Reports() {
         <CardHeader
           title={`تفصيل ${monthLabel(month)} حسب التصنيف`}
           action={
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 print:hidden">
               <div className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
                 {[
                   { value: "expense", label: "مصروف" },
