@@ -20,7 +20,7 @@ export function Modal({ open, onClose, title, children }) {
         onClick={onClose}
         className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
       />
-      <div className="animate-fade-in relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+      <div className="animate-fade-in relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl dark:bg-slate-900">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{title}</h2>
           <button

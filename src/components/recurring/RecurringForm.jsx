@@ -61,7 +61,7 @@ export function RecurringForm({ open, onClose, rule }) {
   return (
     <Modal open={open} onClose={onClose} title={isEdit ? "تعديل العملية المتكررة" : "عملية متكررة جديدة"}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        <div className="grid grid-cols-2 gap-2 rounded-md bg-slate-100 p-1 dark:bg-slate-800">
           {[
             { value: "expense", label: "مصروف" },
             { value: "income", label: "دخل" },
@@ -74,7 +74,7 @@ export function RecurringForm({ open, onClose, rule }) {
                 form.type === opt.value
                   ? opt.value === "expense"
                     ? "bg-rose-500 text-white shadow-sm"
-                    : "bg-teal-600 text-white shadow-sm"
+                    : "bg-green-600 text-white shadow-sm"
                   : "text-slate-500 dark:text-slate-400"
               }`}
             >
@@ -92,7 +92,7 @@ export function RecurringForm({ open, onClose, rule }) {
             value={form.amount}
             onChange={(e) => setForm((f) => ({ ...f, amount: toWesternDigits(e.target.value) }))}
             placeholder="0.00"
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
 
@@ -101,7 +101,7 @@ export function RecurringForm({ open, onClose, rule }) {
           <select
             value={form.categoryId}
             onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="">اختر تصنيف</option>
             {categories.map((c) => (
@@ -117,7 +117,7 @@ export function RecurringForm({ open, onClose, rule }) {
           <select
             value={form.accountId}
             onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           >
             {state.accounts.map((a) => (
               <option key={a.id} value={a.id}>
@@ -136,7 +136,7 @@ export function RecurringForm({ open, onClose, rule }) {
             inputMode="numeric"
             value={form.dayOfMonth}
             onChange={(e) => setForm((f) => ({ ...f, dayOfMonth: toWesternDigits(e.target.value) }))}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
 
@@ -149,14 +149,14 @@ export function RecurringForm({ open, onClose, rule }) {
             value={form.note}
             onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
             placeholder="مثال: الراتب الشهري"
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex gap-2">
-          <Button type="submit" className="flex-1">
+        <div className="mt-2 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+          <Button type="submit">
             {isEdit ? "حفظ التعديلات" : "إضافة"}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose}>

@@ -2,10 +2,12 @@ import {
   BarChart3,
   HandCoins,
   LayoutDashboard,
+  Lock,
   Moon,
   PiggyBank,
   Plus,
   Receipt,
+  Search,
   Settings as SettingsIcon,
   ShieldCheck,
   StickyNote,
@@ -13,8 +15,9 @@ import {
   Wallet,
 } from "lucide-react"
 import { useState } from "react"
-import { NavLink, Outlet } from "react-router-dom"
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useBudget } from "../../context/BudgetContext"
+import { useLock } from "../../context/LockContext"
 import { TransactionForm } from "../transactions/TransactionForm"
 import { Button } from "../ui/Button"
 
@@ -39,9 +42,9 @@ function NavItems({ onNavigate }) {
           end={end}
           onClick={onNavigate}
           className={({ isActive }) =>
-            `flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
+            `flex items-center gap-3 rounded-md px-3.5 py-2.5 text-sm font-semibold transition ${
               isActive
-                ? "bg-teal-600 text-white shadow-sm shadow-teal-600/30"
+                ? "bg-primary-50 text-primary-700 dark:bg-primary-950/40 dark:text-primary-400"
                 : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
             }`
           }
@@ -54,16 +57,35 @@ function NavItems({ onNavigate }) {
   )
 }
 
+function useCurrentNav() {
+  const location = useLocation()
+  return (
+    NAV_ITEMS.find((item) => (item.end ? location.pathname === item.to : location.pathname.startsWith(item.to))) ??
+    NAV_ITEMS[0]
+  )
+}
+
 export function AppLayout() {
   const { state, updateSettings } = useBudget()
+  const { hasPassword, lockNow } = useLock()
+  const navigate = useNavigate()
   const [formOpen, setFormOpen] = useState(false)
+  const [query, setQuery] = useState("")
   const isDark = state.settings.theme === "dark"
+  const currentNav = useCurrentNav()
+
+  function handleSearchSubmit(e) {
+    e.preventDefault()
+    if (!query.trim()) return
+    navigate(`/transactions?q=${encodeURIComponent(query.trim())}`)
+    setQuery("")
+  }
 
   return (
-    <div className="flex min-h-screen bg-[#f4f6f5] dark:bg-[#0b1120]">
+    <div className="flex min-h-screen bg-[#f7fafc] dark:bg-[#0b1120]">
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-l border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900 md:flex">
         <div className="mb-8 flex items-center gap-2 px-1.5">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-teal-600 text-white">
+          <div className="flex size-9 items-center justify-center rounded-md bg-primary-600 text-white">
             <Wallet size={18} />
           </div>
           <div>
@@ -84,20 +106,58 @@ export function AppLayout() {
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col pb-20 md:pb-0">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-8 dark:border-slate-800 dark:bg-slate-900/80">
-          <div className="flex items-center gap-2 md:hidden">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-teal-600 text-white">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-6 dark:border-slate-800 dark:bg-slate-900/80">
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary-600 text-white md:hidden">
               <Wallet size={16} />
             </div>
-            <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
-              مصروفي
-            </p>
+            <div className="flex items-center gap-1.5 text-sm">
+              {currentNav.to !== "/" && (
+                <>
+                  <Link to="/" className="hidden text-slate-400 hover:text-primary-600 sm:inline">
+                    الرئيسية
+                  </Link>
+                  <span className="hidden text-slate-300 sm:inline">/</span>
+                </>
+              )}
+              <span className="font-bold text-slate-700 dark:text-slate-200">{currentNav.label}</span>
+            </div>
           </div>
-          <div className="hidden md:block" />
-          <Button onClick={() => setFormOpen(true)}>
-            <Plus size={16} />
-            عملية جديدة
-          </Button>
+
+          <form onSubmit={handleSearchSubmit} className="hidden max-w-sm flex-1 md:block">
+            <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 focus-within:border-primary-500 dark:border-slate-700 dark:bg-slate-800">
+              <Search size={15} className="text-slate-400" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="بحث في العمليات..."
+                className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 dark:text-slate-100"
+              />
+            </div>
+          </form>
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            {hasPassword && (
+              <button
+                onClick={lockNow}
+                aria-label="قفل الآن"
+                className="hidden rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 sm:flex dark:hover:bg-slate-800"
+              >
+                <Lock size={16} />
+              </button>
+            )}
+            <button
+              onClick={() => updateSettings({ theme: isDark ? "light" : "dark" })}
+              aria-label="تبديل الوضع الداكن"
+              className="hidden rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 sm:flex dark:hover:bg-slate-800"
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <Button onClick={() => setFormOpen(true)}>
+              <Plus size={16} />
+              <span className="hidden sm:inline">عملية جديدة</span>
+            </Button>
+          </div>
         </header>
 
         <main className="flex-1 px-4 py-6 md:px-8">
@@ -113,7 +173,7 @@ export function AppLayout() {
             end={end}
             className={({ isActive }) =>
               `flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-[10px] font-semibold ${
-                isActive ? "text-teal-600" : "text-slate-400"
+                isActive ? "text-primary-600" : "text-slate-400"
               }`
             }
           >

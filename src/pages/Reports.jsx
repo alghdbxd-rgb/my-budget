@@ -77,7 +77,7 @@ export default function Reports() {
         <select
           value={month}
           onChange={(e) => setMonth(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
         >
           {monthOptions.map((m) => (
             <option key={m} value={m}>
@@ -90,7 +90,7 @@ export default function Reports() {
       <div className="grid grid-cols-2 gap-3">
         <Card className="flex items-center justify-between">
           <span className="text-sm font-semibold text-slate-500">إجمالي الدخل</span>
-          <span className="font-bold text-teal-600">{formatMoney(totalIncome, currency)}</span>
+          <span className="font-bold text-green-600">{formatMoney(totalIncome, currency)}</span>
         </Card>
         <Card className="flex items-center justify-between">
           <span className="text-sm font-semibold text-slate-500">إجمالي المصروف</span>
@@ -124,7 +124,7 @@ export default function Reports() {
                 contentStyle={{ direction: "rtl", borderRadius: 12, fontSize: 13 }}
               />
               <Legend formatter={(name) => (name === "income" ? "دخل" : "مصروف")} />
-              <Line type="monotone" dataKey="income" stroke="#0f766e" strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="income" stroke="#16a34a" strokeWidth={2.5} dot={false} />
               <Line type="monotone" dataKey="expense" stroke="#f43f5e" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -146,7 +146,7 @@ export default function Reports() {
                     onClick={() => setReportType(opt.value)}
                     className={`rounded-md px-2.5 py-1 text-xs font-bold transition ${
                       reportType === opt.value
-                        ? "bg-white text-teal-700 shadow-sm dark:bg-slate-900 dark:text-teal-400"
+                        ? "bg-white text-primary-700 shadow-sm dark:bg-slate-900 dark:text-primary-400"
                         : "text-slate-500"
                     }`}
                   >

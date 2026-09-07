@@ -10,7 +10,7 @@ import { sortedNotes } from "../lib/selectors"
 function NoteCard({ note, onEdit, onDelete, onTogglePin }) {
   return (
     <div
-      className="flex flex-col gap-2 rounded-2xl border-r-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-900"
+      className="flex flex-col gap-2 rounded-lg border-r-4 bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-900"
       style={{ borderColor: note.color }}
     >
       <div className="flex items-start justify-between gap-2">
@@ -99,7 +99,7 @@ export default function Notes() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ابحث بالعنوان أو المحتوى..."
-            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="w-full rounded-md border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </div>
       )}

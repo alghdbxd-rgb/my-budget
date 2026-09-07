@@ -15,7 +15,7 @@ function DebtRow({ debt, currency, onPay, onDelete }) {
   const percentPaid = debt.amount > 0 ? Math.min(((debt.amount - remaining) / debt.amount) * 100, 100) : 0
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-slate-100 p-3.5 dark:border-slate-800">
+    <div className="flex flex-col gap-2 rounded-md border border-slate-100 p-3.5 dark:border-slate-800">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-slate-700 dark:text-slate-200">{debt.person}</p>
@@ -41,13 +41,13 @@ function DebtRow({ debt, currency, onPay, onDelete }) {
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
         <div
-          className={`h-full rounded-full transition-all ${settled ? "bg-teal-500" : "bg-amber-500"}`}
+          className={`h-full rounded-full transition-all ${settled ? "bg-green-500" : "bg-amber-500"}`}
           style={{ width: `${percentPaid}%` }}
         />
       </div>
       <p className="text-xs font-semibold text-slate-400">
         {settled ? (
-          <span className="text-teal-600">تم السداد بالكامل ✅ ({formatMoney(debt.amount, currency)})</span>
+          <span className="text-green-600">تم السداد بالكامل ✅ ({formatMoney(debt.amount, currency)})</span>
         ) : (
           <>
             متبقي {formatMoney(remaining, currency)} من {formatMoney(debt.amount, currency)}
@@ -84,7 +84,7 @@ export default function Debts() {
       <div className="grid grid-cols-2 gap-3">
         <Card className="flex items-center justify-between">
           <span className="text-sm font-semibold text-slate-500">مدينون لي (لي)</span>
-          <span className="font-bold text-teal-600">{formatMoney(summary.owedToMe, currency)}</span>
+          <span className="font-bold text-green-600">{formatMoney(summary.owedToMe, currency)}</span>
         </Card>
         <Card className="flex items-center justify-between">
           <span className="text-sm font-semibold text-slate-500">أنا مدين (علي)</span>
@@ -93,7 +93,7 @@ export default function Debts() {
       </div>
 
       <Card>
-        <div className="mb-3 flex gap-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        <div className="mb-3 flex gap-2 rounded-md bg-slate-100 p-1 dark:bg-slate-800">
           {[
             { value: "owed_by_me", label: "علي (أنا مدين)" },
             { value: "owed_to_me", label: "لي (مدينون لي)" },
@@ -103,7 +103,7 @@ export default function Debts() {
               onClick={() => setTab(opt.value)}
               className={`flex-1 rounded-lg py-1.5 text-sm font-bold transition ${
                 tab === opt.value
-                  ? "bg-white text-teal-700 shadow-sm dark:bg-slate-900 dark:text-teal-400"
+                  ? "bg-white text-primary-700 shadow-sm dark:bg-slate-900 dark:text-primary-400"
                   : "text-slate-500 dark:text-slate-400"
               }`}
             >

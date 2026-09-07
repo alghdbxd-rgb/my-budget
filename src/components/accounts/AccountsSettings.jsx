@@ -39,7 +39,7 @@ export function AccountsSettings() {
         {balances.map((a) => (
           <div
             key={a.id}
-            className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 px-3.5 py-2.5 dark:border-slate-800"
+            className="flex items-center justify-between gap-3 rounded-md border border-slate-100 px-3.5 py-2.5 dark:border-slate-800"
           >
             <div className="flex min-w-0 items-center gap-2">
               <div

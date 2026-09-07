@@ -10,6 +10,8 @@ import {
   Settings as SettingsIcon,
   ShieldCheck,
   StickyNote,
+  TrendingDown,
+  TrendingUp,
   Wallet,
 } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -54,25 +56,33 @@ const QUICK_LINKS = [
   { to: "/settings", label: "الإعدادات", icon: SettingsIcon },
 ]
 
-function StatCard({ icon, label, value, tone }) {
+function StatCard({ icon, label, value, tone, delta, deltaGood }) {
   const tones = {
-    teal: "bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400",
+    green: "bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400",
     rose: "bg-rose-50 text-rose-500 dark:bg-rose-950/40 dark:text-rose-400",
     slate: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
   }
   return (
-    <Card className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <div
-          className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${tones[tone]}`}
-        >
+    <Card className="flex flex-col gap-2 !p-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold leading-tight text-slate-400">{label}</p>
+        <div className={`flex size-7 shrink-0 items-center justify-center rounded-md ${tones[tone]}`}>
           {icon}
         </div>
-        <p className="text-xs font-semibold leading-tight text-slate-400">{label}</p>
       </div>
-      <p className="overflow-x-auto whitespace-nowrap text-base font-extrabold text-slate-800 dark:text-slate-100">
+      <p className="overflow-x-auto whitespace-nowrap text-lg font-extrabold tabular-nums text-slate-800 dark:text-slate-100">
         {value}
       </p>
+      {delta != null && (
+        <div
+          className={`flex items-center gap-1 text-[11px] font-semibold ${
+            deltaGood ? "text-green-600" : "text-rose-500"
+          }`}
+        >
+          {delta >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+          <span>{Math.abs(delta).toFixed(0)}٪ من الشهر الماضي</span>
+        </div>
+      )}
     </Card>
   )
 }
@@ -97,6 +107,9 @@ export default function Dashboard() {
     [monthTx, state.categories],
   )
   const trend = useMemo(() => monthlyTrend(state.transactions, 6), [state.transactions])
+  const prevMonth = trend.length >= 2 ? trend[trend.length - 2] : null
+  const incomeDelta = prevMonth?.income > 0 ? ((income - prevMonth.income) / prevMonth.income) * 100 : null
+  const expenseDelta = prevMonth?.expense > 0 ? ((expense - prevMonth.expense) / prevMonth.expense) * 100 : null
   const usage = useMemo(
     () => budgetUsage(state.transactions, state.categories, state.budgets, monthKey),
     [state.transactions, state.categories, state.budgets, monthKey],
@@ -127,7 +140,7 @@ export default function Dashboard() {
           <Link
             key={to}
             to={to}
-            className="flex shrink-0 flex-col items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-semibold text-slate-600 transition hover:border-teal-500 hover:text-teal-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+            className="flex shrink-0 flex-col items-center gap-1.5 rounded-md border border-slate-200 bg-white px-4 py-3 text-xs font-semibold text-slate-600 transition hover:border-primary-500 hover:text-primary-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
           >
             <Icon size={18} />
             {label}
@@ -140,19 +153,23 @@ export default function Dashboard() {
           icon={<Wallet size={20} />}
           label="الرصيد الحالي"
           value={formatMoney(balance, currency)}
-          tone={balance >= 0 ? "teal" : "rose"}
+          tone={balance >= 0 ? "green" : "rose"}
         />
         <StatCard
           icon={<ArrowDownLeft size={20} />}
           label="دخل هذا الشهر"
           value={formatMoney(income, currency)}
-          tone="teal"
+          tone="green"
+          delta={incomeDelta}
+          deltaGood={incomeDelta != null && incomeDelta >= 0}
         />
         <StatCard
           icon={<ArrowUpRight size={20} />}
           label="مصروف هذا الشهر"
           value={formatMoney(expense, currency)}
           tone="rose"
+          delta={expenseDelta}
+          deltaGood={expenseDelta != null && expenseDelta <= 0}
         />
         <StatCard
           icon={<Receipt size={20} />}
@@ -184,7 +201,7 @@ export default function Dashboard() {
           <CardHeader
             title="أرصدة الحسابات"
             action={
-              <Link to="/settings" className="text-sm font-semibold text-teal-600 hover:underline">
+              <Link to="/settings" className="text-sm font-semibold text-primary-600 hover:underline">
                 إدارة
               </Link>
             }
@@ -210,7 +227,7 @@ export default function Dashboard() {
           <CardHeader
             title="الديون والسلف"
             action={
-              <Link to="/debts" className="text-sm font-semibold text-teal-600 hover:underline">
+              <Link to="/debts" className="text-sm font-semibold text-primary-600 hover:underline">
                 عرض الكل
               </Link>
             }
@@ -221,7 +238,7 @@ export default function Dashboard() {
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-slate-600 dark:text-slate-300">مدينون لي</span>
-                <span className="font-bold text-teal-600">{formatMoney(debts.owedToMe, currency)}</span>
+                <span className="font-bold text-green-600">{formatMoney(debts.owedToMe, currency)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-600 dark:text-slate-300">أنا مدين</span>
@@ -237,7 +254,7 @@ export default function Dashboard() {
           <CardHeader
             title="الميزانيات"
             action={
-              <Link to="/budgets" className="text-sm font-semibold text-teal-600 hover:underline">
+              <Link to="/budgets" className="text-sm font-semibold text-primary-600 hover:underline">
                 إدارة
               </Link>
             }
@@ -258,7 +275,7 @@ export default function Dashboard() {
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                     <div
-                      className={`h-full rounded-full ${u.percent >= 100 ? "bg-rose-500" : "bg-teal-500"}`}
+                      className={`h-full rounded-full ${u.percent >= 100 ? "bg-rose-500" : "bg-green-500"}`}
                       style={{ width: `${Math.min(u.percent, 100)}%` }}
                     />
                   </div>
@@ -272,7 +289,7 @@ export default function Dashboard() {
           <CardHeader
             title="العمليات المتكررة"
             action={
-              <Link to="/settings" className="text-sm font-semibold text-teal-600 hover:underline">
+              <Link to="/settings" className="text-sm font-semibold text-primary-600 hover:underline">
                 إدارة
               </Link>
             }
@@ -289,7 +306,7 @@ export default function Dashboard() {
                       {cat?.name ?? "غير مصنف"} · يوم {r.dayOfMonth}
                     </span>
                     <span
-                      className={`shrink-0 font-bold ${r.type === "income" ? "text-teal-600" : "text-rose-500"}`}
+                      className={`shrink-0 font-bold ${r.type === "income" ? "text-green-600" : "text-rose-500"}`}
                     >
                       {formatMoney(r.amount, currency)}
                     </span>
@@ -304,7 +321,7 @@ export default function Dashboard() {
           <CardHeader
             title="الملاحظات"
             action={
-              <Link to="/notes" className="text-sm font-semibold text-teal-600 hover:underline">
+              <Link to="/notes" className="text-sm font-semibold text-primary-600 hover:underline">
                 عرض الكل
               </Link>
             }
@@ -405,7 +422,7 @@ export default function Dashboard() {
                   ]}
                   contentStyle={{ direction: "rtl", borderRadius: 12, fontSize: 13 }}
                 />
-                <Bar dataKey="income" fill="#0f766e" radius={[6, 6, 0, 0]} maxBarSize={22} />
+                <Bar dataKey="income" fill="#16a34a" radius={[6, 6, 0, 0]} maxBarSize={22} />
                 <Bar dataKey="expense" fill="#f43f5e" radius={[6, 6, 0, 0]} maxBarSize={22} />
               </BarChart>
             </ResponsiveContainer>
@@ -417,7 +434,7 @@ export default function Dashboard() {
         <CardHeader
           title="أحدث العمليات"
           action={
-            <Link to="/transactions" className="text-sm font-semibold text-teal-600 hover:underline">
+            <Link to="/transactions" className="text-sm font-semibold text-primary-600 hover:underline">
               عرض الكل
             </Link>
           }

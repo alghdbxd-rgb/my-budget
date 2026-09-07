@@ -15,7 +15,7 @@ export function TransactionRow({ transaction, onEdit, dense = false }) {
   const iconColor = isTransfer ? "#64748b" : (category?.color ?? "#94a3b8")
 
   return (
-    <div className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60">
+    <div className="flex items-center gap-3 rounded-md px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60">
       <div
         className="flex size-9 shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: `${iconColor}1a`, color: iconColor }}
@@ -43,7 +43,7 @@ export function TransactionRow({ transaction, onEdit, dense = false }) {
 
       <p
         className={`shrink-0 text-sm font-bold ${
-          isTransfer ? "text-slate-500 dark:text-slate-400" : isIncome ? "text-teal-600" : "text-rose-500"
+          isTransfer ? "text-slate-500 dark:text-slate-400" : isIncome ? "text-green-600" : "text-rose-500"
         }`}
       >
         {!isTransfer && (isIncome ? "+" : "-")}

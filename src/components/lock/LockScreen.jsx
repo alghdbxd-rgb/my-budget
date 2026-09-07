@@ -22,13 +22,13 @@ export function LockScreen() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f4f6f5] px-4 dark:bg-[#0b1120]">
+    <div className="flex min-h-screen items-center justify-center bg-[#f7fafc] px-4 dark:bg-[#0b1120]">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+        className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-5 flex flex-col items-center gap-2 text-center">
-          <div className="flex size-12 items-center justify-center rounded-xl bg-teal-600 text-white">
+          <div className="flex size-12 items-center justify-center rounded-md bg-primary-600 text-white">
             <Wallet size={22} />
           </div>
           <h1 className="text-lg font-extrabold text-slate-800 dark:text-slate-100">مصروفي مقفل</h1>
@@ -48,7 +48,7 @@ export function LockScreen() {
                 setError("")
               }}
               placeholder="كلمة المرور"
-              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              className="w-full rounded-md border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
         </label>

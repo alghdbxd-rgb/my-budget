@@ -2,6 +2,20 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-primary-50: #eaf4fe;
+  --color-primary-100: #d3e9fd;
+  --color-primary-200: #a8d3fb;
+  --color-primary-300: #7cbdfa;
+  --color-primary-400: #57a8f2;
+  --color-primary-500: #2490ef;
+  --color-primary-600: #1a73c7;
+  --color-primary-700: #145a9e;
+  --color-primary-800: #0f4478;
+  --color-primary-900: #0a2e52;
+  --color-primary-950: #061b30;
+}
+
 :root {
   color-scheme: light;
 }
@@ -11,12 +25,12 @@ html.dark {
 }
 
 * {
-  font-family: "Cairo", ui-sans-serif, system-ui, sans-serif;
+  font-family: "IBM Plex Sans Arabic", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   margin: 0;
-  background-color: #f4f6f5;
+  background-color: #f7fafc;
 }
 
 html.dark body {
@@ -28,7 +42,7 @@ html.dark body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(15, 118, 110, 0.35);
+  background-color: rgba(36, 144, 239, 0.35);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {

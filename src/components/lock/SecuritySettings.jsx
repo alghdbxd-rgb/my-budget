@@ -61,7 +61,7 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
               autoFocus
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             />
           </label>
         )}
@@ -74,7 +74,7 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
             autoFocus={!isChange}
             value={next}
             onChange={(e) => setNext(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
         <label className="flex flex-col gap-1.5">
@@ -85,14 +85,14 @@ function PasswordModal({ open, onClose, mode, onSubmit }) {
             type="password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex gap-2">
-          <Button type="submit" disabled={busy} className="flex-1">
+        <div className="mt-2 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+          <Button type="submit" disabled={busy}>
             {isChange ? "حفظ كلمة المرور الجديدة" : "تفعيل القفل"}
           </Button>
           <Button
@@ -120,7 +120,7 @@ export function SecuritySettings() {
       <CardHeader title="الأمان" subtitle="حماية التطبيق بكلمة مرور على هذا الجهاز" />
 
       {!hasPassword ? (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 px-4 py-3 dark:border-slate-800">
+        <div className="flex items-center justify-between gap-3 rounded-md border border-slate-100 px-4 py-3 dark:border-slate-800">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
             <ShieldOff size={16} className="text-slate-400" />
             القفل غير مفعّل
@@ -132,8 +132,8 @@ export function SecuritySettings() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 px-4 py-3 dark:border-slate-800">
-            <div className="flex items-center gap-2 text-sm font-semibold text-teal-600">
+          <div className="flex items-center justify-between gap-3 rounded-md border border-slate-100 px-4 py-3 dark:border-slate-800">
+            <div className="flex items-center gap-2 text-sm font-semibold text-green-600">
               <ShieldCheck size={16} />
               القفل مفعّل
             </div>

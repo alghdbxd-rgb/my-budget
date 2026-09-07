@@ -47,7 +47,7 @@ export function NoteForm({ open, onClose, note }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="مثال: أرقام مهمة، أفكار، مواعيد..."
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
 
@@ -58,7 +58,7 @@ export function NoteForm({ open, onClose, note }) {
             onChange={(e) => setContent(e.target.value)}
             placeholder="اكتب تفاصيل الملاحظة هنا..."
             rows={7}
-            className="resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            className="resize-none rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </label>
 
@@ -84,8 +84,8 @@ export function NoteForm({ open, onClose, note }) {
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex gap-2">
-          <Button type="submit" className="flex-1">
+        <div className="mt-2 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+          <Button type="submit">
             {isEdit ? "حفظ التعديلات" : "إضافة الملاحظة"}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose}>

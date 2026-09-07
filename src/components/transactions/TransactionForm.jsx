@@ -12,6 +12,15 @@ const TYPE_OPTIONS = [
   { value: "transfer", label: "تحويل" },
 ]
 
+const inputClass =
+  "rounded-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+
+function SectionLabel({ children }) {
+  return (
+    <span className="text-[11px] font-bold tracking-wide text-slate-400 dark:text-slate-500">{children}</span>
+  )
+}
+
 const emptyForm = (type, accountId) => ({
   type,
   amount: "",
@@ -120,133 +129,144 @@ export function TransactionForm({ open, onClose, transaction }) {
 
   return (
     <Modal open={open} onClose={onClose} title={isEdit ? "تعديل العملية" : "عملية جديدة"}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
-          {TYPE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => applyType(opt.value)}
-              className={`rounded-lg py-2 text-sm font-bold transition ${
-                form.type === opt.value
-                  ? opt.value === "expense"
-                    ? "bg-rose-500 text-white shadow-sm"
-                    : opt.value === "income"
-                      ? "bg-teal-600 text-white shadow-sm"
-                      : "bg-slate-700 text-white shadow-sm"
-                  : "text-slate-500 dark:text-slate-400"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {/* معلومات العملية */}
+        <div className="flex flex-col gap-3">
+          <SectionLabel>معلومات العملية</SectionLabel>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">المبلغ</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            autoFocus
-            value={form.amount}
-            onChange={(e) => setForm((f) => ({ ...f, amount: toWesternDigits(e.target.value) }))}
-            placeholder="0.00"
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-          />
-        </label>
+          <div className="grid grid-cols-3 gap-2 rounded-md bg-slate-100 p-1 dark:bg-slate-800">
+            {TYPE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => applyType(opt.value)}
+                className={`rounded py-2 text-sm font-bold transition ${
+                  form.type === opt.value
+                    ? opt.value === "expense"
+                      ? "bg-rose-500 text-white shadow-sm"
+                      : opt.value === "income"
+                        ? "bg-green-600 text-white shadow-sm"
+                        : "bg-slate-700 text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
 
-        {!isTransfer && (
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-              ملاحظة (اختياري)
-            </span>
-            <input
-              type="text"
-              value={form.note}
-              onChange={(e) => applyNote(e.target.value)}
-              placeholder="مثال: تكسي، غداء، فاتورة كهرباء..."
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-            />
-          </label>
-        )}
-
-        {!isTransfer && (
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">التصنيف</span>
-            <select
-              value={form.categoryId}
-              onChange={(e) => {
-                setAutoPicked(false)
-                setForm((f) => ({ ...f, categoryId: e.target.value }))
-              }}
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-            >
-              <option value="">اختر تصنيف</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {autoPicked && form.categoryId && (
-              <span className="text-xs font-semibold text-teal-600 dark:text-teal-400">
-                🔎 اقترحنا هذا التصنيف تلقائياً من الملاحظة
-              </span>
-            )}
-          </label>
-        )}
-
-        {isTransfer ? (
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">من حساب</span>
-              <select
-                value={form.accountId}
-                onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
-                className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              >
-                <option value="">اختر حساب</option>
-                {state.accounts.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name}
-                  </option>
-                ))}
-              </select>
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">المبلغ</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                autoFocus
+                value={form.amount}
+                onChange={(e) => setForm((f) => ({ ...f, amount: toWesternDigits(e.target.value) }))}
+                placeholder="0.00"
+                className={inputClass}
+              />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">إلى حساب</span>
-              <select
-                value={form.toAccountId}
-                onChange={(e) => setForm((f) => ({ ...f, toAccountId: e.target.value }))}
-                className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              >
-                <option value="">اختر حساب</option>
-                {state.accounts.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name}
-                  </option>
-                ))}
-              </select>
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">التاريخ</span>
+              <input
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                className={inputClass}
+              />
             </label>
           </div>
-        ) : (
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">الحساب</span>
-            <select
-              value={form.accountId}
-              onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-            >
-              {state.accounts.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
+        </div>
 
-        {isTransfer && (
+        <div className="border-t border-slate-100 dark:border-slate-800" />
+
+        {/* التصنيف والحساب */}
+        <div className="flex flex-col gap-3">
+          <SectionLabel>{isTransfer ? "الحسابات" : "التصنيف والحساب"}</SectionLabel>
+
+          {isTransfer ? (
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">من حساب</span>
+                <select
+                  value={form.accountId}
+                  onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
+                  className={inputClass}
+                >
+                  <option value="">اختر حساب</option>
+                  {state.accounts.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">إلى حساب</span>
+                <select
+                  value={form.toAccountId}
+                  onChange={(e) => setForm((f) => ({ ...f, toAccountId: e.target.value }))}
+                  className={inputClass}
+                >
+                  <option value="">اختر حساب</option>
+                  {state.accounts.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">التصنيف</span>
+                <select
+                  value={form.categoryId}
+                  onChange={(e) => {
+                    setAutoPicked(false)
+                    setForm((f) => ({ ...f, categoryId: e.target.value }))
+                  }}
+                  className={inputClass}
+                >
+                  <option value="">اختر تصنيف</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">الحساب</span>
+                <select
+                  value={form.accountId}
+                  onChange={(e) => setForm((f) => ({ ...f, accountId: e.target.value }))}
+                  className={inputClass}
+                >
+                  {state.accounts.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          )}
+          {!isTransfer && autoPicked && form.categoryId && (
+            <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+              🔎 اقترحنا هذا التصنيف تلقائياً من الملاحظة
+            </span>
+          )}
+        </div>
+
+        <div className="border-t border-slate-100 dark:border-slate-800" />
+
+        {/* تفاصيل إضافية */}
+        <div className="flex flex-col gap-3">
+          <SectionLabel>تفاصيل إضافية</SectionLabel>
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
               ملاحظة (اختياري)
@@ -254,29 +274,17 @@ export function TransactionForm({ open, onClose, transaction }) {
             <input
               type="text"
               value={form.note}
-              onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
-              placeholder="مثال: سحب من الماستر"
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              onChange={(e) => (isTransfer ? setForm((f) => ({ ...f, note: e.target.value })) : applyNote(e.target.value))}
+              placeholder={isTransfer ? "مثال: سحب من الماستر" : "مثال: تكسي، غداء، فاتورة كهرباء..."}
+              className={inputClass}
             />
           </label>
-        )}
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">التاريخ</span>
-          <input
-            type="date"
-            value={form.date}
-            onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-          />
-        </label>
+        </div>
 
         {error && <p className="text-sm font-semibold text-rose-500">{error}</p>}
 
-        <div className="mt-1 flex gap-2">
-          <Button type="submit" className="flex-1">
-            {isEdit ? "حفظ التعديلات" : "إضافة العملية"}
-          </Button>
+        <div className="mt-1 flex items-center justify-start gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+          <Button type="submit">{isEdit ? "حفظ التعديلات" : "إضافة العملية"}</Button>
           <Button type="button" variant="secondary" onClick={onClose}>
             إلغاء
           </Button>

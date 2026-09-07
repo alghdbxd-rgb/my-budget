@@ -41,7 +41,7 @@ export function RecurringSettings() {
             return (
               <div
                 key={r.id}
-                className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 px-3.5 py-2.5 dark:border-slate-800"
+                className="flex items-center justify-between gap-3 rounded-md border border-slate-100 px-3.5 py-2.5 dark:border-slate-800"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -55,7 +55,7 @@ export function RecurringSettings() {
                   <button
                     onClick={() => updateRecurring(r.id, { active: !r.active })}
                     className={`relative h-6 w-10 shrink-0 rounded-full transition ${
-                      r.active ? "bg-teal-600" : "bg-slate-200 dark:bg-slate-700"
+                      r.active ? "bg-primary-600" : "bg-slate-200 dark:bg-slate-700"
                     }`}
                     aria-label="تفعيل/إيقاف"
                   >
@@ -68,7 +68,7 @@ export function RecurringSettings() {
                   <button
                     onClick={() => runRecurringNow(r.id)}
                     aria-label="تشغيل الآن"
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-teal-600 dark:hover:bg-slate-700"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-primary-600 dark:hover:bg-slate-700"
                   >
                     <Play size={14} />
                   </button>
