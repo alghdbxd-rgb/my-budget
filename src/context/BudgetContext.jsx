@@ -206,7 +206,10 @@ export function BudgetProvider({ children }) {
         const now = new Date().toISOString()
         setState((s) => ({
           ...s,
-          notes: [{ id: uuid(), pinned: false, createdAt: now, updatedAt: now, ...note }, ...s.notes],
+          notes: [
+            { id: uuid(), pinned: false, done: false, createdAt: now, updatedAt: now, ...note },
+            ...s.notes,
+          ],
         }))
       },
       updateNote(id, patch) {
@@ -224,6 +227,12 @@ export function BudgetProvider({ children }) {
         setState((s) => ({
           ...s,
           notes: s.notes.map((n) => (n.id === id ? { ...n, pinned: !n.pinned } : n)),
+        }))
+      },
+      toggleNoteDone(id) {
+        setState((s) => ({
+          ...s,
+          notes: s.notes.map((n) => (n.id === id ? { ...n, done: !n.done } : n)),
         }))
       },
       updateSettings(patch) {
