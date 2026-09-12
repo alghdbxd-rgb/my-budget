@@ -276,6 +276,19 @@ def emit_erpnext(entries, cfg, out_dir):
     project = erp.get("project", "")
     written = []
 
+    # ترقيم الحسابات: نفس الترتيب يحكم ملف الحسابات وملف القيود، وإلا اختلفت
+    # أسماء الحسابات بين الملفين وفشل الاستيراد الثاني كاملاً.
+    spent = sorted({e["category"] for e in entries if e["direction"] == "out"})
+    funders = sorted({e["party"] for e in entries if e["direction"] == "in" and e["party"]})
+    cost_no = {c: erp["expense_number_prefix"] + str(i) for i, c in enumerate(spent, 1)}
+    fund_no = {f: erp["funding_number_prefix"] + str(i) for i, f in enumerate(funders, 1)}
+
+    def cost_account(category):
+        return acct(f"{cost_no[category]} - {erp['category_accounts'][category]}", abbr)
+
+    def funder_account(party):
+        return acct(f"{fund_no[party]} - جاري {party}", abbr)
+
     # مراكز الكلفة: مركز لكل قسم تحت المركز الرئيسي
     path = os.path.join(out_dir, "erpnext-01-cost-centers.csv")
     with open(path, "w", newline="", encoding="utf-8-sig") as fh:
@@ -285,28 +298,25 @@ def emit_erpnext(entries, cfg, out_dir):
             w.writerow([cc, acct(erp["parent_cost_center"], abbr), company, 0])
     written.append(path)
 
-    # الحسابات: حساب مصروف/كلفة لكل قسم + حساب جارٍ لكل ممول
-    funders = sorted({e["party"] for e in entries if e["direction"] == "in" and e["party"]})
+    # الحسابات: حساب كلفة لكل قسم + حساب جارٍ لكل ممول
     path = os.path.join(out_dir, "erpnext-02-accounts.csv")
     with open(path, "w", newline="", encoding="utf-8-sig") as fh:
         w = csv.writer(fh)
         w.writerow(["account_name", "parent_account", "company", "is_group",
                     "root_type", "account_type", "account_number"])
-        spent = sorted({e["category"] for e in entries if e["direction"] == "out"})
-        for i, name in enumerate([erp["category_accounts"][c] for c in spent], start=1):
-            w.writerow([name, acct(erp["expense_parent"], abbr), company, 0,
-                        erp["expense_root_type"], "", erp["expense_number_prefix"] + str(i)])
-        for i, f in enumerate(funders, start=1):
-            w.writerow([f"جاري {f}", acct(erp["funding_parent"], abbr), company, 0,
-                        "Liability", erp.get("funding_account_type", ""),
-                        erp["funding_number_prefix"] + str(i)])
+        for category in spent:
+            w.writerow([erp["category_accounts"][category], acct(erp["expense_parent"], abbr),
+                        company, 0, erp["expense_root_type"], "", cost_no[category]])
+        for party in funders:
+            w.writerow([f"جاري {party}", acct(erp["funding_parent"], abbr), company, 0,
+                        "Liability", erp.get("funding_account_type", ""), fund_no[party]])
     written.append(path)
 
     # قيود اليومية: سطر مدين وسطر دائن لكل حركة
-    header = ["posting_date", "company", "voucher_type", "user_remark",
-              "accounts.account", "accounts.debit_in_account_currency",
-              "accounts.credit_in_account_currency", "accounts.cost_center",
-              "accounts.project", "accounts.user_remark"]
+    cols = erp["je_columns"]
+    header = [cols[k] for k in ("posting_date", "entry_type", "series", "company",
+                                "user_remark", "account", "debit", "credit",
+                                "cost_center", "project")]
     buckets = {"ready": [], "review-dates": [], "missing-dates": []}
     for e in entries:
         key = ("missing-dates" if e["date_status"] == MISSING
@@ -325,16 +335,17 @@ def emit_erpnext(entries, cfg, out_dir):
                 label = " — ".join(t for t in (e["description"], e["party"], e["notes"]) if t)[:140]
                 cc = acct(erp["category_cost_center"][e["category"]], abbr) if e["category"] in erp["category_cost_center"] else ""
                 if e["direction"] == "in":
-                    debit = (cash, e["amount"], 0, "")
-                    credit = (acct(f"جاري {e['party']}", abbr) if e["party"] else cash, 0, e["amount"], "")
+                    lines = [(cash, e["amount"], 0, ""),
+                             (funder_account(e["party"]) if e["party"] else cash, 0, e["amount"], "")]
                 else:
-                    target = acct(erp["category_accounts"][e["category"]], abbr)
-                    debit = (target, e["amount"], 0, cc)
-                    credit = (cash, 0, e["amount"], "")
-                for n, (account, dr, cr, center) in enumerate((debit, credit)):
-                    w.writerow([date if n == 0 else "", company if n == 0 else "",
-                                "Journal Entry" if n == 0 else "", label if n == 0 else "",
-                                account, dr or "", cr or "", center, project, label])
+                    lines = [(cost_account(e["category"]), e["amount"], 0, cc),
+                             (cash, 0, e["amount"], "")]
+                for n, (account, dr, cr, center) in enumerate(lines):
+                    first = n == 0
+                    w.writerow([date if first else "", erp["entry_type"] if first else "",
+                                erp["series"] if first else "", company if first else "",
+                                label if first else "",
+                                account, dr or "", cr or "", center, project])
         written.append(path)
     return written
 
