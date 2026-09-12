@@ -298,7 +298,8 @@ def emit_erpnext(entries, cfg, out_dir):
                         erp["expense_root_type"], "", erp["expense_number_prefix"] + str(i)])
         for i, f in enumerate(funders, start=1):
             w.writerow([f"جاري {f}", acct(erp["funding_parent"], abbr), company, 0,
-                        "Liability", "Payable", erp["funding_number_prefix"] + str(i)])
+                        "Liability", erp.get("funding_account_type", ""),
+                        erp["funding_number_prefix"] + str(i)])
     written.append(path)
 
     # قيود اليومية: سطر مدين وسطر دائن لكل حركة
