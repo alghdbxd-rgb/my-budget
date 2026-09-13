@@ -1,12 +1,30 @@
 [build]
   # يُبنى تطبيق "مصروفي" ثم تُنسخ نسخة "التاج الذهبي" الثابتة تحت /taj/
-  command = "npm run build && mkdir -p dist/taj && cp -R golden-crown-web/. dist/taj/"
+  command = "npm run build && mkdir -p dist/taj && cp -R golden-crown-web/. dist/taj/ && echo \"commit=${COMMIT_REF:-local} deploy=${DEPLOY_ID:-local} built=$(date -u +%FT%TZ)\" > dist/taj/version.txt"
   publish = "dist"
+
+# ملفات "التاج الذهبي" تتغيّر مع كل نشر، ولا يجوز أن تبقى نسخة قديمة في الكاش
+[[headers]]
+  for = "/taj/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/taj/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+    Service-Worker-Allowed = "/taj/"
 
 [[headers]]
   for = "/.well-known/assetlinks.json"
   [headers.values]
     Content-Type = "application/json"
+
+# مسارات /taj/ ملفات فعلية ولا تمر بتحويل تطبيق مصروفي
+[[redirects]]
+  from = "/taj/*"
+  to = "/taj/:splat"
+  status = 200
 
 [[redirects]]
   from = "/*"
