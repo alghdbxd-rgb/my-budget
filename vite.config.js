@@ -30,6 +30,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // نسخة "التاج الذهبي" الثابتة تحت /taj/ لها عامل خدمة خاص بها،
+        // فلا يجوز لعامل خدمة "مصروفي" أن يبتلع تنقّلاتها.
+        navigateFallbackDenylist: [/^\/taj\//],
       },
     }),
   ],
