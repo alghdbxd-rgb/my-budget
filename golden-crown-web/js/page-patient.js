@@ -168,6 +168,8 @@
       nodes.push(U.empty('لا توجد استشارات بعد — ابدأ أول استشارة مجانية.', '🦷'));
     }
 
+    nodes.push(U.installPrompt(null));
+
     nodes.push(
       U.el('div', { class: 'notice-legal small' }, [
         U.el('b', { text: 'تنبيه' }),
@@ -705,7 +707,37 @@
       ]));
     }
 
+    if (cs.refund) {
+      nodes.push(U.el('div', {
+        class: 'alert alert--' + (cs.refund.status === 'approved' ? 'ok' : 'info'),
+        text: cs.refund.status === 'approved'
+          ? 'تمت الموافقة على استرجاع ' + U.money(cs.refund.amount, d.settings.currency) + ' — يُعاد المبلغ إلى محفظتك خلال أيام العمل.'
+          : 'طلب الاسترجاع قيد المراجعة من إدارة المنصة.'
+      }));
+    } else if (E.refundEligible(d, cs)) {
+      nodes.push(U.el('div', { class: 'card stack' }, [
+        U.el('h3', { text: 'لم يصلك رد حتى الآن' }),
+        U.el('p', { class: 'small muted', text: 'مضى أكثر من ' + U.num(d.settings.refundAfterHours) + ' ساعة دون رد. يمكنك طلب استرجاع مبلغ الاستشارة، أو ترك الحالة ليعيد المشرف توجيهها لطبيب آخر.' }),
+        U.el('button', {
+          class: 'btn btn--ghost btn--block', text: 'طلب استرجاع المبلغ',
+          onclick: function () {
+            U.confirmDialog('سيُلغى طلب الاستشارة ويُسترجع المبلغ بعد موافقة الإدارة. متابعة؟', function () {
+              S.update(function (dd) {
+                var c = E.consultationById(dd, cs.id);
+                if (!c) return;
+                c.refund = { status: 'requested', amount: c.amount, requestedAt: Date.now() };
+                S.log(dd, { who: 'المريض', role: 'patient', what: 'طلب استرجاع مبلغ الاستشارة ' + c.id + ' لتجاوز زمن الرد', targetPatientId: c.patientId });
+              });
+              U.toast('وصل طلبك — ستراجعه الإدارة', 'ok');
+              renderStatus(cs.id);
+            }, 'تأكيد الطلب');
+          }
+        })
+      ]));
+    }
+
     if (cs.status === 'answered' || cs.status === 'closed') {
+      nodes.push(ratingCard(cs));
       nodes.push(U.el('div', { class: 'row', style: 'gap:10px' }, [
         U.el('button', { class: 'btn btn--gold grow', text: 'عرض التقرير الطبي', onclick: function () { go('#/report/' + cs.id); } }),
         U.el('button', { class: 'btn btn--ghost', text: 'أقرب الأطباء', onclick: function () { go('#/doctors/' + cs.id); } })
@@ -746,6 +778,45 @@
     }
 
     U.mount(view, U.el('div', { class: 'stack' }, nodes));
+  }
+
+  /** تقييم المريض للاستشارة — يغذّي مؤشرات جودة الطبيب (FR-18) */
+  function ratingCard(cs) {
+    if (cs.patientRating) {
+      return U.el('div', { class: 'card row row--between' }, [
+        U.el('span', { text: 'تقييمك لهذه الاستشارة' }),
+        U.el('b', { text: '★'.repeat(cs.patientRating) + '☆'.repeat(5 - cs.patientRating) })
+      ]);
+    }
+    var stars = U.el('div', { class: 'chips' });
+    for (var i = 1; i <= 5; i++) {
+      (function (v) {
+        stars.appendChild(U.el('button', {
+          class: 'chip chip--gold', type: 'button', text: '★'.repeat(v),
+          onclick: function () {
+            S.update(function (dd) {
+              var c = E.consultationById(dd, cs.id);
+              if (!c) return;
+              c.patientRating = v;
+              c.ratedAt = Date.now();
+              var doc = E.doctorById(dd, c.doctorId);
+              if (doc) {
+                var n = doc.reviewsCount || 0;
+                doc.rating = Math.round((((doc.rating || 0) * n + v) / (n + 1)) * 10) / 10;
+                doc.reviewsCount = n + 1;
+              }
+            });
+            U.toast('شكراً لتقييمك', 'ok');
+            renderStatus(cs.id);
+          }
+        }));
+      })(i);
+    }
+    return U.el('div', { class: 'card stack' }, [
+      U.el('h3', { text: 'كيف كانت استشارتك؟' }),
+      U.el('p', { class: 'small muted', text: 'تقييمك يساعد فريق الجودة على متابعة أداء الأطباء.' }),
+      stars
+    ]);
   }
 
   /* ---------------- التقرير (FR-19 .. FR-22) ---------------- */

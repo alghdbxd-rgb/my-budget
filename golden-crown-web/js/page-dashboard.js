@@ -14,6 +14,7 @@
     { group: 'المتابعة', items: [
       { key: 'overview', icon: '📊', label: 'نظرة عامة' },
       { key: 'consultations', icon: '🗂️', label: 'الاستشارات' },
+      { key: 'patients', icon: '👥', label: 'المستخدمون' },
       { key: 'quality', icon: '⭐', label: 'الجودة وزمن الاستجابة' }
     ]},
     { group: 'الإدارة', items: [
@@ -363,6 +364,138 @@
     var m = U.modal({
       title: 'الحالة ' + c.id,
       body: body,
+      actions: [U.el('button', { class: 'btn btn--ghost', text: 'إغلاق', onclick: function () { m.close(); } })]
+    });
+  }
+
+  /* ================= المستخدمون (FR-29) ================= */
+
+  var ptFilters = { q: '', region: '' };
+
+  function renderPatients() {
+    var search = U.el('input', { type: 'search', placeholder: 'بحث بالاسم أو رقم الهاتف', value: ptFilters.q });
+    var region = U.el('select', {}, [U.el('option', { value: '', text: 'كل المحافظات' })].concat(
+      S.GOVERNORATES.map(function (g) { return U.el('option', { value: g.id, text: g.name }); })
+    ));
+    region.value = ptFilters.region;
+    var host = U.el('div', {});
+
+    function rows() {
+      var d = db();
+      var byPatient = {};
+      d.consultations.forEach(function (c) {
+        var r = byPatient[c.patientId] || (byPatient[c.patientId] = { count: 0, paid: 0, last: 0, spend: 0 });
+        r.count++;
+        if (c.paymentStatus === 'paid') { r.paid++; r.spend += c.amount || 0; }
+        if (c.createdAt > r.last) r.last = c.createdAt;
+      });
+      return d.patients.map(function (p) {
+        var r = byPatient[p.id] || { count: 0, paid: 0, last: 0, spend: 0 };
+        return { patient: p, count: r.count, paid: r.paid, last: r.last, spend: r.spend };
+      }).filter(function (row) {
+        if (ptFilters.region && row.patient.region !== ptFilters.region) return false;
+        if (ptFilters.q) {
+          var hay = ((row.patient.name || '') + ' ' + row.patient.phone).toLowerCase();
+          if (hay.indexOf(ptFilters.q.toLowerCase()) === -1) return false;
+        }
+        return true;
+      }).sort(function (a, b) { return b.last - a.last; });
+    }
+
+    function paint() {
+      var d = db();
+      var list = rows();
+      var active = list.filter(function (r) { return r.last && Date.now() - r.last <= 30 * S.DAY; }).length;
+      var repeat = list.filter(function (r) { return r.count > 1; }).length;
+      U.mount(host, U.el('div', { class: 'stack' }, [
+        U.el('div', { class: 'grid grid--kpi' }, [
+          U.stat({ label: 'إجمالي المستخدمين', value: U.num(d.patients.length) }),
+          U.stat({ label: 'نشطون خلال ٣٠ يوماً', value: U.num(active) }),
+          U.stat({ label: 'مستخدمون بأكثر من استشارة', value: U.num(repeat), hint: 'مؤشر التكرار والولاء' }),
+          U.stat({ label: 'الظاهر بعد الفلترة', value: U.num(list.length) })
+        ]),
+        list.length ? U.table([
+          { title: 'المستخدم', render: function (r) {
+              return U.el('div', {}, [
+                U.el('div', { class: 'list-item__title', text: r.patient.name || 'بلا اسم' }),
+                U.el('div', { class: 'list-item__meta', text: r.patient.phone })
+              ]);
+            } },
+          { title: 'المحافظة', render: function (r) {
+              var g = E.govById(r.patient.region);
+              return g ? g.name : '—';
+            } },
+          { title: 'العمر', render: function (r) { return r.patient.age ? U.num(r.patient.age) : '—'; } },
+          { title: 'استشارات', render: function (r) { return U.num(r.count); } },
+          { title: 'مؤكدة', render: function (r) { return U.num(r.paid); } },
+          { title: 'إنفاق', render: function (r) { return U.num(r.spend); } },
+          { title: 'آخر نشاط', render: function (r) { return r.last ? U.ago(r.last) : '—'; } },
+          { title: 'القناة', render: function (r) {
+              var c = S.CHANNELS.filter(function (x) { return x.id === r.patient.channel; })[0];
+              return c ? c.name : '—';
+            } },
+          { title: '', render: function (r) {
+              return U.el('button', {
+                class: 'btn btn--sm btn--ghost', text: 'سجل الحالات',
+                onclick: function () { patientModal(r.patient.id); }
+              });
+            } }
+        ], list.slice(0, 150)) : U.empty('لا يوجد مستخدمون مطابقون.', '👥')
+      ]));
+    }
+
+    search.addEventListener('input', function () { ptFilters.q = search.value.trim(); paint(); });
+    region.addEventListener('change', function () { ptFilters.region = region.value; paint(); });
+
+    U.mount(view, U.el('div', { class: 'stack' }, [
+      head('المستخدمون', 'قاعدة المراجعين المسجّلين ونشاطهم.', [
+        U.el('button', {
+          class: 'btn btn--sm btn--ghost', text: '⬇️ تصدير',
+          onclick: function () {
+            var out = [['الاسم', 'الهاتف', 'المحافظة', 'العمر', 'استشارات', 'مؤكدة', 'إنفاق', 'آخر نشاط', 'القناة']];
+            rows().forEach(function (r) {
+              var g = E.govById(r.patient.region);
+              out.push([r.patient.name, r.patient.phone, g ? g.name : '', r.patient.age,
+                r.count, r.paid, r.spend, r.last ? U.date(r.last) : '', r.patient.channel]);
+            });
+            csv('golden-crown-patients.csv', out);
+          }
+        })
+      ]),
+      U.el('div', { class: 'alert alert--info', text: 'تذكير: الوصول إلى بيانات المرضى محصور بالصلاحيات، وكل اطّلاع من طبيب أو مشرف يُسجَّل في سجل التدقيق (NFR-1 / NFR-3).' }),
+      U.el('div', { class: 'toolbar' }, [search, region]),
+      host
+    ]));
+    paint();
+  }
+
+  function patientModal(id) {
+    var d = db();
+    var p = E.patientById(d, id);
+    if (!p) return;
+    var cases = d.consultations.filter(function (c) { return c.patientId === id; });
+    var g = E.govById(p.region);
+    var m = U.modal({
+      title: (p.name || 'مستخدم') + ' — ' + p.phone,
+      body: U.el('div', { class: 'stack' }, [
+        U.el('div', { class: 'report__grid' }, [
+          U.el('div', { class: 'report__row' }, [U.el('b', { text: 'المحافظة' }), U.el('span', { text: g ? g.name : '—' })]),
+          U.el('div', { class: 'report__row' }, [U.el('b', { text: 'العمر' }), U.el('span', { text: p.age ? U.num(p.age) + ' سنة' : '—' })]),
+          U.el('div', { class: 'report__row' }, [U.el('b', { text: 'أمراض مزمنة' }), U.el('span', { text: p.chronic || '—' })]),
+          U.el('div', { class: 'report__row' }, [U.el('b', { text: 'حساسية' }), U.el('span', { text: p.allergies || '—' })]),
+          U.el('div', { class: 'report__row' }, [U.el('b', { text: 'تاريخ التسجيل' }), U.el('span', { text: U.date(p.createdAt) })])
+        ]),
+        cases.length ? U.table([
+          { title: 'الحالة', key: 'id' },
+          { title: 'التاريخ', render: function (c) { return U.date(c.createdAt); } },
+          { title: 'الشكوى', render: function (c) {
+              var cm = S.COMPLAINTS.filter(function (x) { return x.id === c.complaintId; })[0];
+              return cm ? cm.label : '—';
+            } },
+          { title: 'الحالة', render: function (c) { return U.badge(E.statusLabel(c.status), E.statusTone(c.status)); } },
+          { title: 'المبلغ', render: function (c) { return c.amount ? U.num(c.amount) : 'مجاني'; } }
+        ], cases) : U.empty('لا توجد استشارات لهذا المستخدم.', '🗂️')
+      ]),
       actions: [U.el('button', { class: 'btn btn--ghost', text: 'إغلاق', onclick: function () { m.close(); } })]
     });
   }
@@ -738,11 +871,13 @@
         })
       ]),
       U.el('div', { class: 'grid grid--kpi' }, [
-        U.stat({ label: 'إجمالي الإيراد', value: U.money(m.revenue, d.settings.currency), accent: 'gold' }),
+        U.stat({ label: 'صافي الإيراد', value: U.money(m.revenue, d.settings.currency), accent: 'gold', hint: 'بعد خصم الاسترجاعات' }),
         U.stat({ label: 'حصة المنصة', value: U.money(m.platformShare, d.settings.currency), hint: U.num(100 - d.settings.doctorSharePercent) + '% من كل استشارة' }),
         U.stat({ label: 'مستحقات الأطباء', value: U.money(m.doctorShare, d.settings.currency), hint: 'غير مسوّاة: ' + U.money(m.unsettled, d.settings.currency) }),
+        U.stat({ label: 'مبالغ مسترجعة', value: U.money(m.refunded, d.settings.currency), hint: U.num(m.refundRequests) + ' طلب بانتظار البت', accent: m.refundRequests ? 'danger' : null }),
         U.stat({ label: 'نسبة صرف الأكواد', value: U.pct(m.redemption), hint: U.num(m.redeemed) + ' كود مصروف' })
       ]),
+      refundRequestsCard(),
       card('صرف كود خصم (بوابة العيادة)', 'يمكن للعيادة الشريكة استخدام صفحة مستقلة: clinic.html', redeemHost),
       card('الحركات المالية', U.num(txs.length) + ' حركة خلال الفترة', U.table([
         { title: 'الحركة', key: 'id' },
@@ -774,6 +909,62 @@
     U.mount(view, U.el('div', { class: 'stack' }, nodes));
   }
 
+  /** طلبات استرجاع المبلغ عند عدم الرد (FR-28) */
+  function refundRequestsCard() {
+    var d = db();
+    var pending = d.consultations.filter(function (c) { return c.refund && c.refund.status === 'requested'; });
+    if (!pending.length) return U.el('div', { class: 'hidden' });
+    return card('طلبات استرجاع المبلغ', 'حالات تجاوزت ' + U.num(d.settings.refundAfterHours) + ' ساعة دون رد وطلب أصحابها الاسترجاع.', U.table([
+      { title: 'الحالة', key: 'id' },
+      { title: 'المريض', render: function (c) {
+          var p = E.patientById(db(), c.patientId);
+          return p ? (p.name || p.phone) : '—';
+        } },
+      { title: 'المبلغ', render: function (c) { return U.money(c.refund.amount, db().settings.currency); } },
+      { title: 'طُلب', render: function (c) { return U.ago(c.refund.requestedAt); } },
+      { title: 'إجراء', render: function (c) {
+          return U.el('div', { class: 'row', style: 'gap:6px' }, [
+            U.el('button', { class: 'btn btn--sm btn--ok', text: 'موافقة واسترجاع', onclick: function () { approveRefund(c.id); } }),
+            U.el('button', { class: 'btn btn--sm btn--ghost', text: 'رفض', onclick: function () { rejectRefund(c.id); } })
+          ]);
+        } }
+    ], pending));
+  }
+
+  function approveRefund(id) {
+    S.update(function (d) {
+      var c = E.consultationById(d, id);
+      if (!c || !c.refund) return;
+      var amount = c.refund.amount || 0;
+      var share = Math.round(amount * (d.settings.doctorSharePercent / 100));
+      d.transactions.unshift({
+        id: S.uid('TX-'), type: 'refund', consultationId: c.id, doctorId: c.doctorId,
+        clinicId: null, amount: -amount, doctorShare: -share, platformShare: -(amount - share),
+        clinicDiscount: 0, settled: true, date: Date.now()
+      });
+      c.refund.status = 'approved';
+      c.refund.approvedAt = Date.now();
+      c.status = 'closed';
+      var code = d.codes.filter(function (k) { return k.consultationId === c.id; })[0];
+      if (code && !code.redeemed) code.voided = true;
+      S.log(d, { who: 'د. خالد', role: 'super_admin', what: 'الموافقة على استرجاع مبلغ الاستشارة ' + c.id + ' وإلغاء رمز الخصم', targetPatientId: c.patientId });
+    });
+    U.toast('تم تنفيذ الاسترجاع', 'ok');
+    renderFinance();
+  }
+
+  function rejectRefund(id) {
+    S.update(function (d) {
+      var c = E.consultationById(d, id);
+      if (!c || !c.refund) return;
+      c.refund.status = 'rejected';
+      c.refund.rejectedAt = Date.now();
+      S.log(d, { who: 'د. خالد', role: 'super_admin', what: 'رفض طلب استرجاع للحالة ' + c.id, targetPatientId: c.patientId });
+    });
+    U.toast('تم رفض الطلب', 'warn');
+    renderFinance();
+  }
+
   function redeem(value, clinicId) {
     var code = String(value || '').trim().toUpperCase();
     if (!code) { U.toast('أدخل الرمز', 'error'); return; }
@@ -782,6 +973,7 @@
       var row = d.codes.filter(function (c) { return c.value === code; })[0];
       if (!row) { outcome = { ok: false, msg: 'الرمز غير موجود' }; return; }
       if (row.redeemed) { outcome = { ok: false, msg: 'الرمز مستخدَم سابقاً بتاريخ ' + U.date(row.redeemedAt) }; return; }
+      if (row.voided) { outcome = { ok: false, msg: 'الرمز ملغى بعد استرجاع مبلغ الاستشارة' }; return; }
       var cs = E.consultationById(d, row.consultationId);
       if (!cs || !(cs.status === 'answered' || cs.status === 'closed')) {
         outcome = { ok: false, msg: 'لا يمكن صرف الرمز قبل صدور التقرير' };
@@ -1007,6 +1199,13 @@
     f.swelling.checked = s.escalation.requireSwelling;
     f.fever = U.el('input', { type: 'checkbox' });
     f.fever.checked = s.escalation.requireFever;
+    f.refundPolicy = U.el('select', {}, [
+      U.el('option', { value: 'refund', text: 'استرجاع المبلغ بطلب المريض' }),
+      U.el('option', { value: 'reassign', text: 'إعادة توجيه فقط بلا استرجاع' }),
+      U.el('option', { value: 'none', text: 'لا سياسة معلنة' })
+    ]);
+    f.refundPolicy.value = s.refundPolicy;
+    f.refundAfter = U.el('input', { type: 'number', min: '1', value: s.refundAfterHours });
     f.matching = U.el('select', {}, [
       U.el('option', { value: 'geo_nearest', text: 'الأقرب جغرافياً (إحداثيات المحافظة والعيادة)' }),
       U.el('option', { value: 'governorate', text: 'ضمن نفس المحافظة فقط' }),
@@ -1045,6 +1244,8 @@
                 requireFever: f.fever.checked
               };
               dd.settings.matching = f.matching.value;
+              dd.settings.refundPolicy = f.refundPolicy.value;
+              dd.settings.refundAfterHours = n(f.refundAfter, dd.settings.refundAfterHours);
               S.log(dd, { who: 'د. خالد', role: 'super_admin', what: 'تحديث قواعد العمل (التسعير/المجاني/الزمن الملزم/التصعيد)' });
             });
             U.toast('تم حفظ القواعد', 'ok');
@@ -1075,7 +1276,14 @@
           U.el('label', { class: 'check' }, [f.fever, U.el('span', { text: 'يشترط وجود حرارة' })])
         ]))
       ]),
-      card('منطق المطابقة الجغرافية', 'FR-8 / D6 — الطريقة المعتمدة حالياً في المحرك.', U.el('div', {}, [field('الطريقة', f.matching)])),
+      U.el('div', { class: 'grid grid--2' }, [
+        card('منطق المطابقة الجغرافية', 'FR-8 / D6 — الطريقة المعتمدة حالياً في المحرك.', U.el('div', {}, [field('الطريقة', f.matching)])),
+        card('سياسة عدم الرد والاسترجاع', 'FR-28 — غير محددة في العرض.', U.el('div', {}, [
+          field('السياسة', f.refundPolicy),
+          field('يحق للمريض طلب الاسترجاع بعد (ساعة)', f.refundAfter)
+        ]))
+      ]),
+      card('النسخ الاحتياطي', 'تصدير كل بيانات المعاينة أو استعادتها على جهاز آخر.', backupTools()),
       card('منطقة الخطر', null, U.el('div', { class: 'row', style: 'gap:8px' }, [
         U.el('button', {
           class: 'btn btn--danger', text: 'تصفير كل البيانات التجريبية',
@@ -1089,6 +1297,46 @@
         U.el('span', { class: 'small muted', text: 'يؤثر على متصفحك فقط.' })
       ]))
     ]));
+  }
+
+  function backupTools() {
+    var file = U.el('input', { type: 'file', accept: 'application/json', style: 'display:none' });
+    file.addEventListener('change', function () {
+      var f = file.files && file.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var parsed = JSON.parse(reader.result);
+          if (!parsed || !parsed.settings || !Array.isArray(parsed.consultations)) throw new Error('bad');
+          localStorage.setItem(S.KEY, JSON.stringify(parsed));
+          U.toast('تمت الاستعادة — سيُعاد تحميل الصفحة', 'ok');
+          setTimeout(function () { location.reload(); }, 700);
+        } catch (e) {
+          U.toast('الملف غير صالح', 'error');
+        }
+      };
+      reader.readAsText(f);
+      file.value = '';
+    });
+
+    return U.el('div', { class: 'row', style: 'gap:8px' }, [
+      U.el('button', {
+        class: 'btn btn--ghost', text: '⬇️ تصدير نسخة JSON',
+        onclick: function () {
+          var blob = new Blob([JSON.stringify(db(), null, 2)], { type: 'application/json' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'golden-crown-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          U.toast('تم تصدير النسخة', 'ok');
+        }
+      }),
+      file,
+      U.el('button', { class: 'btn btn--ghost', text: '⬆️ استعادة من ملف', onclick: function () { file.click(); } })
+    ]);
   }
 
   /* ================= القرارات المفتوحة (القسم ٩) ================= */
@@ -1205,6 +1453,7 @@
   var ROUTES = {
     overview: renderOverview,
     consultations: renderConsultations,
+    patients: renderPatients,
     quality: renderQuality,
     doctors: renderDoctors,
     supervisors: renderSupervisors,

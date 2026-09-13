@@ -1,5 +1,6 @@
 [build]
-  command = "npm run build"
+  # يُبنى تطبيق "مصروفي" ثم تُنسخ نسخة "التاج الذهبي" الثابتة تحت /taj/
+  command = "npm run build && mkdir -p dist/taj && cp -R golden-crown-web/. dist/taj/"
   publish = "dist"
 
 [[headers]]

@@ -565,6 +565,38 @@
     document.body.appendChild(bar);
   }
 
+  /* ---------- تثبيت التطبيق والعمل بدون اتصال (NFR-11 / NFR-12) ---------- */
+
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    if (location.protocol === 'file:') return; /* يحتاج خادماً محلياً */
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (e) {
+        console.warn('تعذّر تسجيل عامل الخدمة:', e);
+      });
+    });
+  }
+
+  /** زر «تثبيت التطبيق» يظهر فقط عندما يسمح المتصفح بذلك */
+  function installPrompt(host) {
+    var deferred = null;
+    var btn = el('button', { class: 'btn btn--ghost btn--block', text: '📲 تثبيت التطبيق على الجهاز', hidden: 'hidden' });
+    btn.addEventListener('click', function () {
+      if (!deferred) return;
+      deferred.prompt();
+      deferred.userChoice.then(function () { btn.hidden = true; deferred = null; });
+    });
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferred = e;
+      btn.hidden = false;
+    });
+    if (host) host.appendChild(btn);
+    return btn;
+  }
+
+  registerServiceWorker();
+
   window.GC = window.GC || {};
   window.GC.ui = {
     $: $, $$: $$, el: el, esc: esc, clear: clear, mount: mount,
@@ -574,6 +606,6 @@
     badge: badge, stat: stat, empty: empty, table: table, progress: progress,
     lineChart: lineChart, barChart: barChart, hbarChart: hbarChart,
     donutChart: donutChart, funnelChart: funnelChart, legend: legend,
-    colors: C, roleBar: roleBar
+    colors: C, roleBar: roleBar, installPrompt: installPrompt
   };
 })();
