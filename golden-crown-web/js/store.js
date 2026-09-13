@@ -516,6 +516,8 @@
         urgentSlaMinutes: 60,
         escalation: { painThreshold: 8, requireSwelling: true, requireFever: true },
         matching: 'geo_nearest',
+        refundPolicy: 'refund',        /* refund = استرجاع المبلغ | reassign = إعادة توجيه فقط | none = لا سياسة (FR-28) */
+        refundAfterHours: 48,
         legalNotice: LEGAL_NOTICE,
         legalSource: LEGAL_SOURCE,
         legalLocked: true,                /* النص إلزامي ولا يُحذف من التقرير (FR-20) */
@@ -542,13 +544,28 @@
       }
       var parsed = JSON.parse(raw);
       if (!parsed || parsed.version !== 1) throw new Error('stale');
-      state = parsed;
+      state = ensureDefaults(parsed);
       return state;
     } catch (e) {
       state = seed();
       persist();
       return state;
     }
+  }
+
+  /* استكمال الحقول الجديدة للبيانات المحفوظة من إصدار أقدم من التطبيق */
+  function ensureDefaults(s) {
+    var fresh = seed();
+    Object.keys(fresh.settings).forEach(function (k) {
+      if (s.settings[k] === undefined) s.settings[k] = fresh.settings[k];
+    });
+    ['clinics', 'doctors', 'supervisors', 'admins', 'patients', 'consultations', 'codes',
+     'transactions', 'audit', 'complaints', 'waitlist', 'visits', 'templates'].forEach(function (k) {
+      if (!Array.isArray(s[k])) s[k] = fresh[k];
+    });
+    if (!s.drafts) s.drafts = {};
+    if (!s.session) s.session = fresh.session;
+    return s;
   }
 
   function persist() {

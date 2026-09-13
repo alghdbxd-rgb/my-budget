@@ -121,6 +121,15 @@
     return Date.now() - cs.createdAt > limitMs;
   }
 
+  /** هل يحق للمريض طلب استرجاع المبلغ؟ (FR-28) */
+  function refundEligible(db, cs) {
+    if (db.settings.refundPolicy === 'none') return false;
+    if (!cs || cs.paymentStatus !== 'paid' || !cs.amount) return false;
+    if (cs.status === 'answered' || cs.status === 'closed') return false;
+    if (cs.refund) return false;
+    return Date.now() - cs.createdAt > db.settings.refundAfterHours * 3600000;
+  }
+
   /* ---------- مؤشرات لوحة الإدارة ---------- */
 
   function inRange(ts, days) {
@@ -149,11 +158,13 @@
     var revenue = 0;
     var platformShare = 0;
     var doctorShare = 0;
+    var refunded = 0;
     db.transactions.forEach(function (t) {
       if (!inRange(t.date, days)) return;
       revenue += t.amount;
       platformShare += t.platformShare;
       doctorShare += t.doctorShare;
+      if (t.type === 'refund') refunded += Math.abs(t.amount);
     });
 
     var responseTimes = periodAnswered
@@ -195,6 +206,8 @@
       open: all.filter(function (c) { return c.status === 'new' || c.status === 'in_review'; }).length,
       overdue: all.filter(function (c) { return isOverdue(db, c); }).length,
       revenue: revenue,
+      refunded: refunded,
+      refundRequests: all.filter(function (c) { return c.refund && c.refund.status === 'requested'; }).length,
       platformShare: platformShare,
       doctorShare: doctorShare,
       unsettled: db.transactions.filter(function (t) { return !t.settled; }).reduce(function (a, t) { return a + t.doctorShare; }, 0),
@@ -372,6 +385,7 @@
     statusLabel: statusLabel,
     statusTone: statusTone,
     isOverdue: isOverdue,
+    refundEligible: refundEligible,
     metrics: metrics,
     funnel: funnel,
     timeseries: timeseries,

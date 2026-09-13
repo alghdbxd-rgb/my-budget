@@ -32,6 +32,10 @@
         result.appendChild(U.el('div', { class: 'alert alert--warn', text: 'الرمز مستخدَم سابقاً بتاريخ ' + U.dateTime(row.redeemedAt) + ' — لا يُصرف مرتين.' }));
         return;
       }
+      if (row.voided) {
+        result.appendChild(U.el('div', { class: 'alert alert--danger', text: 'الرمز ملغى — استُرجع مبلغ الاستشارة للمريض.' }));
+        return;
+      }
       if (!cs || !(cs.status === 'answered' || cs.status === 'closed')) {
         result.appendChild(U.el('div', { class: 'alert alert--warn', text: 'الاستشارة لم تُنجز بعد — لا يمكن صرف الرمز.' }));
         return;
