@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>العروض العقارية — أساس للاستثمار العقاري</title>
+  <meta name="description" content="ابحث بين عروض البيع والإيجار والاستثمار: شقق، دور، أراضٍ، محلات وعمارات في كل المحافظات." />
+  <meta name="theme-color" content="#062f26" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="icons/favicon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark">أ</span>
+        <span>
+          <span class="brand__name" data-company>أساس للاستثمار العقاري</span>
+          <span class="brand__sub">عروض البيع والإيجار والاستثمار</span>
+        </span>
+      </a>
+      <nav class="topbar__nav">
+        <a href="index.html">الرئيسية</a>
+        <a href="offers.html">العروض</a>
+        <a class="opt" href="index.html#packages">البكجات</a>
+        <a class="opt" href="index.html#contact">تواصل معنا</a>
+        <a href="app.html">لوحة العمل</a>
+        <span id="theme-slot"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding: 20px 0 60px">
+    <div class="stack" id="offers-page"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap row row--between">
+      <div>
+        <h4 data-company>أساس للاستثمار العقاري</h4>
+        <div class="small" data-address></div>
+      </div>
+      <div class="small">
+        <div data-phone-line></div>
+        <div>جميع الحقوق محفوظة © <span data-year></span></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/ui.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/media.js"></script>
+  <script src="js/views.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/page-offers.js"></script>
+</body>
+</html>
