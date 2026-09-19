@@ -30,9 +30,13 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // مرجع ERPNext صفحة واحدة ضخمة (نصف ميغا) مستقلة بذاتها تحت /erp/،
+        // ولا داعي أن يحمّلها كل من يثبّت "مصروفي" ضمن الكاش المسبق.
+        globIgnores: ['erp/**'],
         // نسخة "التاج الذهبي" الثابتة تحت /taj/ لها عامل خدمة خاص بها،
-        // فلا يجوز لعامل خدمة "مصروفي" أن يبتلع تنقّلاتها.
-        navigateFallbackDenylist: [/^\/taj\//],
+        // ومرجع ERPNext صفحة ثابتة تحت /erp/، فلا يجوز لعامل خدمة "مصروفي"
+        // أن يبتلع تنقّلاتهما.
+        navigateFallbackDenylist: [/^\/taj\//, /^\/erp\//],
       },
     }),
   ],
