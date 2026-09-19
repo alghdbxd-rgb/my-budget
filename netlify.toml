@@ -15,6 +15,12 @@
     Cache-Control = "no-cache"
     Service-Worker-Allowed = "/taj/"
 
+# مرجع ERPNext صفحة واحدة تحت /erp/ — تُحدَّث مع النشر ولا يجوز أن تبقى نسخة قديمة بالكاش
+[[headers]]
+  for = "/erp/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+
 [[headers]]
   for = "/.well-known/assetlinks.json"
   [headers.values]
@@ -24,6 +30,17 @@
 [[redirects]]
   from = "/taj/*"
   to = "/taj/:splat"
+  status = 200
+
+# مسار /erp/ ملف فعلي ولا يمر بتحويل تطبيق مصروفي
+[[redirects]]
+  from = "/erp"
+  to = "/erp/"
+  status = 301
+
+[[redirects]]
+  from = "/erp/*"
+  to = "/erp/:splat"
   status = 200
 
 [[redirects]]
